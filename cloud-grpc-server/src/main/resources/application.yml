@@ -1,0 +1,22 @@
+# spring.sleuth.sampler.probability 配置的是链路数据上传给 ZipKin Server 的比例
+spring:
+  application:
+    name: cloud-grpc-server
+  sleuth:
+    sampler:
+      probability: 1
+server:
+  port: 0
+# grpc.server.port 配置的是 gRPC 的 netty 端口，会随机分配端口
+grpc:
+  server:
+    port: 8081
+eureka:
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${vcap.application.instance_id:${spring.application.instance_id:${random.value}}}
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka/

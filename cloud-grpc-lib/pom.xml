@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.changhr.cloud.grpc</groupId>
+    <artifactId>cloud-grpc-lib</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <name>cloud-gRPC-lib</name>
+    <description>cloud-gRPC-lib project for cloud-gRPC.</description>
+
+    <properties>
+        <!-- gRPC 版本 -->
+        <grpc.version>1.14.0</grpc.version>
+        <protobuf.version>3.5.1</protobuf.version>
+        <netty.version>4.1.27.Final</netty.version>
+
+        <!-- Maven 插件版本 -->
+        <os.plugin.version>1.6.0</os.plugin.version>
+        <protobuf.plugin.version>0.5.1</protobuf.plugin.version>
+    </properties>
+
+    <dependencies>
+        <!-- gRPC -->
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-netty</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-protobuf</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-stub</artifactId>
+        </dependency>
+    </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- gRPC 的官方依赖 -->
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-netty</artifactId>
+                <version>${grpc.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-protobuf</artifactId>
+                <version>${grpc.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-stub</artifactId>
+                <version>${grpc.version}</version>
+            </dependency>
+
+            <!-- Netty 的依赖 -->
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-common</artifactId>
+                <version>${netty.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <extensions>
+            <!--
+            os-maven-plugin 为当前操作系统和体系结构自动生成分类器，
+            Google 的 protobuf 团队使用相同的插件为 protoc 组件生成分类器。
+            -->
+            <extension>
+                <groupId>kr.motd.maven</groupId>
+                <artifactId>os-maven-plugin</artifactId>
+                <version>${os.plugin.version}</version>
+            </extension>
+        </extensions>
+        <plugins>
+            <!--
+            利用 protobuf-maven-plugin 的 configuration 标签下可以配置各种属性，
+            protoSourceRoot 标签为配置 proto 的源 IDL 文件，默认地址为 ${project.basedir}/src/main/proto;
+            outputDirectory 标签为配置编译后输出的文件地址，默认地址为 ${project.build.directory}/generated-sources/protobuf/java;
+            protocArtifact 标签为配置 Protocol Buffers 的编译器地址，它是用 artifact、groupId、version 来确定唯一性的。
+            -->
+            <plugin>
+                <groupId>org.xolstice.maven.plugins</groupId>
+                <artifactId>protobuf-maven-plugin</artifactId>
+                <version>${protobuf.plugin.version}</version>
+                <configuration>
+                    <protoSourceRoot>${project.basedir}/src/main/proto</protoSourceRoot>
+
+                    <!-- 设置是否在生成 Java 文件之前清空 outputDirectory 的文件，默认值为 true，设置为 false 时也会覆盖同名文件 -->
+                    <clearOutputDirectory>true</clearOutputDirectory>
+
+                    <!-- 用来生成 protobuf-java 相关的文件 -->
+                    <protocArtifact>com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}</protocArtifact>
+
+                    <!-- 用来生成 gRPC 相关的文件 -->
+                    <pluginId>grpc-java</pluginId>
+                    <pluginArtifact>io.grpc:protoc-gen-grpc-java:${grpc.version}:exe:${os.detected.classifier}</pluginArtifact>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>compile</goal>
+                            <goal>compile-custom</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>8</source>
+                    <target>8</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
