@@ -4,7 +4,7 @@ import com.changhr.cloud.grpc.HelloReply;
 import com.changhr.cloud.grpc.HelloRequest;
 import com.changhr.cloud.grpc.SimpleGrpc;
 import io.grpc.Channel;
-import net.devh.springboot.autoconfigure.grpc.client.GrpcClient;
+import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.stereotype.Service;
 
 import static com.changhr.cloud.grpc.SimpleGrpc.newBlockingStub;

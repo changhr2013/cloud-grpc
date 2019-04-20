@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 6100
 spring:
   application:
     name: clour-grpc-client
@@ -19,3 +19,9 @@ eureka:
     fetch-registry: true
     service-url:
       defaultZone: http://localhost:8761/eureka/
+# 切换到 PLAINTEXT 的连接方式
+# https://github.com/yidongnan/grpc-spring-boot-starter/blob/master/README-zh.md#%E6%B5%8B%E8%AF%95%E6%9C%9F%E9%97%B4-ssl-%E7%9A%84%E9%97%AE%E9%A2%98
+grpc:
+  client:
+    cloud-grpc-server:
+      negotiationType: PLAINTEXT

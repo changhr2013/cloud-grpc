@@ -14,13 +14,13 @@
 
     <properties>
         <!-- gRPC 版本 -->
-        <grpc.version>1.14.0</grpc.version>
-        <protobuf.version>3.5.1</protobuf.version>
-        <netty.version>4.1.27.Final</netty.version>
+        <grpc.version>1.18.0</grpc.version>
+        <protobuf.version>3.6.1</protobuf.version>
+        <netty.version>4.1.32.Final</netty.version>
 
         <!-- Maven 插件版本 -->
-        <os.plugin.version>1.6.0</os.plugin.version>
-        <protobuf.plugin.version>0.5.1</protobuf.plugin.version>
+        <os.plugin.version>1.6.2</os.plugin.version>
+        <protobuf.plugin.version>0.6.1</protobuf.plugin.version>
     </properties>
 
     <dependencies>
@@ -36,6 +36,10 @@
         <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-stub</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-common</artifactId>
         </dependency>
     </dependencies>
 

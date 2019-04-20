@@ -6,11 +6,11 @@ spring:
     sampler:
       probability: 1
 server:
-  port: 0
+  port: 6102
 # grpc.server.port 配置的是 gRPC 的 netty 端口，会随机分配端口
 grpc:
   server:
-    port: 8081
+    port: 6101
 eureka:
   instance:
     prefer-ip-address: true
