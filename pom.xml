@@ -30,6 +30,8 @@
         <module>cloud-eureka-server</module>
         <!-- Apollo 配置的 Zuul 网关 -->
         <module>cloud-apollo-zuul</module>
+        <!-- Apollo 配置的 Zuul 网关 -->
+        <module>cloud-apollo-gateway</module>
     </modules>
 
     <properties>
