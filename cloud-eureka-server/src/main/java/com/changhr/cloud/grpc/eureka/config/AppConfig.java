@@ -1,14 +1,12 @@
-package com.changhr.cloud.apollo.client.config;
+package com.changhr.cloud.grpc.eureka.config;
 
 import com.ctrip.framework.apollo.spring.annotation.EnableApolloConfig;
 import org.springframework.context.annotation.Configuration;
 
 /**
  * @author changhr
- * @date 2019/4/21
  */
+@EnableApolloConfig
 @Configuration
-@EnableApolloConfig(value = "application")
 public class AppConfig {
-
 }

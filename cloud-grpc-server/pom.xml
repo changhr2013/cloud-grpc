@@ -21,25 +21,31 @@
             <artifactId>cloud-grpc-lib</artifactId>
         </dependency>
 
-        <!-- Eureka 客户端 -->
+        <!-- Config: Apollo Client -->
         <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+            <groupId>com.ctrip.framework.apollo</groupId>
+            <artifactId>apollo-client</artifactId>
         </dependency>
 
-        <!-- Actuator 监控 -->
+        <!-- Starter: Actuator -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
-        <!-- 作为 Web 项目，需要引入 Spring Boot Web 起步依赖 -->
+        <!-- Cloud: Eureka Client -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        </dependency>
+
+        <!-- Starter: Web -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-        <!-- 作为 Zipkin Client 时，需要引入 Zipkin 的起步依赖 -->
+        <!-- Cloud: Zipkin Client -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-zipkin</artifactId>
@@ -49,7 +55,7 @@
             <artifactId>brave-instrumentation-grpc</artifactId>
         </dependency>
 
-        <!-- 作为 gRPC Server 时，需要引入 gRPC Server 的起步依赖 -->
+        <!-- Starter: GRPC -->
         <dependency>
             <groupId>net.devh</groupId>
             <artifactId>grpc-spring-boot-starter</artifactId>
