@@ -18,19 +18,19 @@
     <description>cloud-gRPC project.</description>
 
     <modules>
+        <!-- 存放 gRPC 的 IDL 文件 -->
+        <module>cloud-grpc-lib</module>
         <!-- gRPC 的服务端，即服务提供者 -->
         <module>cloud-grpc-server</module>
         <!-- gRPC 的客户端，即服务消费者 -->
         <module>cloud-grpc-client</module>
-        <!-- 存放 gRPC 的 IDL 文件 -->
-        <module>cloud-grpc-lib</module>
-        <!-- Apollo 客户端 -->
-        <module>cloud-apollo-client</module>
         <!-- Eureka 注册中心-->
         <module>cloud-eureka-server</module>
+        <!-- Apollo 客户端 -->
+        <module>cloud-apollo-client</module>
         <!-- Apollo 配置的 Zuul 网关 -->
         <module>cloud-apollo-zuul</module>
-        <!-- Apollo 配置的 Zuul 网关 -->
+        <!-- Apollo 配置的 Gateway 网关 -->
         <module>cloud-apollo-gateway</module>
     </modules>
 
@@ -64,24 +64,30 @@
     </properties>
 
     <dependencies>
-        <!-- Stater -->
+        <!-- Stater: Spring Boot -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
         </dependency>
 
-        <!-- lombok -->
+        <!-- Starter: Spring Boot Test -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Util: lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
         </dependency>
 
-        <!-- Spring Boot Test -->
+        <!-- Util: Mapstruct -->
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
         </dependency>
     </dependencies>
 
@@ -167,7 +173,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
 
-            <!-- MapStruct Maven 支持 -->
+            <!-- MapStruct & lombok Maven 支持 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -180,6 +186,11 @@
                             <groupId>org.mapstruct</groupId>
                             <artifactId>mapstruct-processor</artifactId>
                             <version>${mapstruct.version}</version>
+                        </path>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
                         </path>
                     </annotationProcessorPaths>
                 </configuration>
