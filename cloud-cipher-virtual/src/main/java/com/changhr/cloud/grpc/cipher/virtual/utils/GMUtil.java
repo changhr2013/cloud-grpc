@@ -350,14 +350,84 @@ public class GMUtil {
         }
     }
 
-    public static BCECPrivateKey getPrivateKeyFromD(BigInteger d) {
+    /**
+     * 从 D 分量还原完整的私钥
+     * @param d D 分量
+     * @return  BCECPrivateKey 完整的私钥
+     */
+    public static BCECPrivateKey buildPrivateKeyFromD(BigInteger d) {
         ECPrivateKeySpec ecPrivateKeySpec = new ECPrivateKeySpec(d, ecParameterSpec);
         return new BCECPrivateKey("EC", ecPrivateKeySpec, BouncyCastleProvider.CONFIGURATION);
     }
 
-    public static BCECPublicKey getPublicKeyFromXY(BigInteger x, BigInteger y) {
+    /**
+     * 从 D 分量字节数组还原完整的私钥
+     * @param privateKeyD D 分量的字节数组
+     * @return  BCECPrivateKey 完整的私钥
+     */
+    public static BCECPrivateKey buildPrivateKeyFromD(byte[] privateKeyD) {
+        return buildPrivateKeyFromD(new BigInteger(1, privateKeyD));
+    }
+
+    /**
+     * 从 X，Y 分量还原完整的公钥
+     * @param x X 分量
+     * @param y Y 分量
+     * @return  BCECPublicKey 完整的公钥
+     */
+    public static BCECPublicKey buildPublicKeyFromXY(BigInteger x, BigInteger y) {
         ECPublicKeySpec ecPublicKeySpec = new ECPublicKeySpec(x9ECParameters.getCurve().createPoint(x, y), ecParameterSpec);
         return new BCECPublicKey("EC", ecPublicKeySpec, BouncyCastleProvider.CONFIGURATION);
+    }
+
+    /**
+     * 从 X，Y 分量拼合的字节数组还原完整的公钥
+     * @param publicKeyXY X，Y 分量拼合的字节数组
+     * @return  BCECPublicKey 完整的公钥
+     */
+    public static BCECPublicKey buildPublicKeyFromXY(byte[] publicKeyXY) {
+        BigInteger x = getXFromBytes(publicKeyXY);
+        BigInteger y = getYFromBytes(publicKeyXY);
+        return buildPublicKeyFromXY(x, y);
+    }
+
+    private static BigInteger getDFromBytes(byte[] privateKeyD) {
+        return new BigInteger(1, privateKeyD);
+    }
+
+    private static BigInteger getXFromBytes(byte[] publicKeyXY) {
+        byte[] x = new byte[RS_LEN];
+        System.arraycopy(publicKeyXY, 0, x, 0, x.length);
+        return new BigInteger(1, x);
+    }
+
+    private static BigInteger getYFromBytes(byte[] publicKeyXY) {
+        byte[] y = new byte[RS_LEN];
+        System.arraycopy(publicKeyXY, RS_LEN, y, 0, y.length);
+        return new BigInteger(1, y);
+    }
+
+    /**
+     * 获取私钥分量 D 作为交换的私钥
+     * @param privateKey    私钥
+     * @return  byte[] 私钥分量 D 的字节数组
+     */
+    public static byte[] getPrivateKeyD(BCECPrivateKey privateKey) {
+        return bigIntToFixedLengthBytes(privateKey.getD());
+    }
+
+    /**
+     * 获取公钥分量 X，Y 作为交换的公钥
+     * @param publicKey     公钥
+     * @return  byte[] 公钥分量 X，Y 拼合的字节数组
+     */
+    public static byte[] getPublicKeyXY(BCECPublicKey publicKey) {
+        byte[] x = bigIntToFixedLengthBytes(publicKey.getQ().getXCoord().toBigInteger());
+        byte[] y = bigIntToFixedLengthBytes(publicKey.getQ().getYCoord().toBigInteger());
+        byte[] result = new byte[RS_LEN * 2];
+        System.arraycopy(x, 0, result, 0, x.length);
+        System.arraycopy(y, 0, result, RS_LEN, y.length);
+        return result;
     }
 
     /**
