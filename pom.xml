@@ -32,6 +32,8 @@
         <module>cloud-apollo-zuul</module>
         <!-- Apollo 配置的 Gateway 网关 -->
         <module>cloud-apollo-gateway</module>
+        <!-- 关于字节数组转换和加解密的模块 -->
+        <module>cloud-cipher-virtual</module>
     </modules>
 
     <properties>
