@@ -40,6 +40,10 @@ public class GMUtil {
 
     private static X9ECParameters x9ECParameters = GMNamedCurves.getByName("sm2p256v1");
 
+    private static final byte[] USER_ID = "1234567812345678".getBytes();
+
+    private static final int RS_LEN = 32;
+
     private static ECDomainParameters ecDomainParameters =
             new ECDomainParameters(x9ECParameters.getCurve(), x9ECParameters.getG(), x9ECParameters.getN());
 
@@ -53,8 +57,10 @@ public class GMUtil {
     }
 
     /**
+     * 使用私钥对数据签名，结果为直接拼接 rs 的字节数组
+     *
      * @param msg        待签名数据
-     * @param userId
+     * @param userId     签名者身份信息，默认应使用 "1234567812345678".getBytes()
      * @param privateKey 私钥
      * @return r||s，直接拼接 byte 数组的 rs
      */
@@ -63,8 +69,21 @@ public class GMUtil {
     }
 
     /**
+     * 使用私钥对数据签名，结果为直接拼接 rs 的字节数组
+     *
      * @param msg        待签名数据
-     * @param userId
+     * @param privateKey 私钥
+     * @return r||s，直接拼接 byte 数组的 rs
+     */
+    public static byte[] signSm3WithSm2(byte[] msg, PrivateKey privateKey) {
+        return signSm3WithSm2(msg, USER_ID, privateKey);
+    }
+
+    /**
+     * 使用私钥对数据签名，结果为 ASN1 格式的 rs 的字节数组
+     *
+     * @param msg        待签名数据
+     * @param userId     签名者身份信息，默认应使用 "1234567812345678".getBytes()
      * @param privateKey 私钥
      * @return rs in <b>asn1 format</b>
      */
@@ -82,8 +101,21 @@ public class GMUtil {
     }
 
     /**
+     * 使用私钥对数据签名，结果为 ASN1 格式的 rs 的字节数组
+     *
+     * @param msg        待签名数据
+     * @param privateKey 私钥
+     * @return rs in <b>asn1 format</b>
+     */
+    public static byte[] signSm3WithSm2Asn1Rs(byte[] msg, PrivateKey privateKey) {
+        return signSm3WithSm2Asn1Rs(msg, USER_ID, privateKey);
+    }
+
+    /**
+     * 验证直接拼接 rs 的签名
+     *
      * @param msg       待验签的数据
-     * @param userId
+     * @param userId    签名者身份信息，默认应使用 "1234567812345678".getBytes()
      * @param rs        r||s，直接拼接 byte 数组的 rs
      * @param publicKey 公钥
      * @return boolean
@@ -93,8 +125,22 @@ public class GMUtil {
     }
 
     /**
+     * 验证直接拼接 rs 的签名
+     *
      * @param msg       待验签的数据
-     * @param userId
+     * @param rs        签名者身份信息，默认应使用 "1234567812345678".getBytes()
+     * @param publicKey 公钥
+     * @return boolean
+     */
+    public static boolean verifySm3WithSm2(byte[] msg, byte[] rs, PublicKey publicKey) {
+        return verifySm3WithSm2(msg, USER_ID, rs, publicKey);
+    }
+
+    /**
+     * 验证 ASN1 格式的签名
+     *
+     * @param msg       待验签的数据
+     * @param userId    签名者身份信息，默认应使用 "1234567812345678".getBytes()
      * @param rs        in <b>asn1 format<b/>
      * @param publicKey 公钥
      * @return boolean
@@ -110,6 +156,18 @@ public class GMUtil {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * 验证 ASN1 格式的签名
+     *
+     * @param msg       待验签的数据
+     * @param rs        in <b>asn1 format<b/>
+     * @param publicKey 公钥
+     * @return boolean
+     */
+    public static boolean verifySm3WithSm2Asn1Rs(byte[] msg, byte[] rs, PublicKey publicKey) {
+        return verifySm3WithSm2Asn1Rs(msg, USER_ID, rs, publicKey);
     }
 
     /**
@@ -155,7 +213,7 @@ public class GMUtil {
     }
 
     /**
-     * c1||c2||c3
+     * 使用旧标准 c1||c2||c3 顺序的 SM2 非对称公钥加密
      *
      * @param data 待加密数据
      * @param key  公钥
@@ -174,9 +232,10 @@ public class GMUtil {
     }
 
     /**
-     * SM2 对称公钥加密
-     * @param data  待加密数据
-     * @param key   SM2 公钥
+     * 使用新标准 c1||c3||c2 顺序的 SM2 非对称公钥加密
+     *
+     * @param data 待加密数据
+     * @param key  SM2 公钥
      * @return byte[] 加密后的数据
      */
     public static byte[] sm2Encrypt(byte[] data, PublicKey key) {
@@ -184,7 +243,7 @@ public class GMUtil {
     }
 
     /**
-     * c1||c2||c3
+     * 使用旧标准 c1||c2||c3 顺序的 SM2 非对称私钥解密
      *
      * @param data 待解密数据
      * @param key  SM2 私钥
@@ -203,7 +262,8 @@ public class GMUtil {
     }
 
     /**
-     * SM2 非对称私钥解密
+     * 使用新标准 c1||c3||c2 顺序的 SM2 非对称私钥解密
+     *
      * @param data 待解密数据
      * @param key  私钥
      * @return byte[]
@@ -266,6 +326,7 @@ public class GMUtil {
 
     /**
      * SM3 Hash 算法
+     *
      * @param bytes 待 hash 的数据
      * @return byte[] SM3 hash 值
      */
@@ -277,8 +338,12 @@ public class GMUtil {
         return result;
     }
 
-    private final static int RS_LEN = 32;
-
+    /**
+     * 将 BigInteger 转换为定长的字节数组
+     *
+     * @param rOrS BigInteger
+     * @return byte[] 定长的字节数组，长度为 32(RS_LEN)
+     */
     private static byte[] bigIntToFixedLengthBytes(BigInteger rOrS) {
         // for sm2p256v1, n is 00fffffffeffffffffffffffffffffffff7203df6b21c6052b53bbf40939d54123,
         // n and s are the result of mod n, so they should be less than n and have length < 32.
@@ -298,7 +363,7 @@ public class GMUtil {
     }
 
     /**
-     * BC 的 SM3withSM2 签名得到的结果的 rs 时 asn1 格式的，这个方法转换成直接拼接的 r||s
+     * BC 的 SM3withSM2 签名得到的结果的 rs 是 asn1 格式的，这个方法转换成直接拼接的 r||s
      *
      * @param rsDer rs in asn1 format
      * @return sign result in plain byte array
@@ -336,7 +401,7 @@ public class GMUtil {
     }
 
     /**
-     * 生成密钥对
+     * 生成 EC 密钥对
      *
      * @return KeyPair
      */
@@ -351,39 +416,43 @@ public class GMUtil {
     }
 
     /**
-     * 从 D 分量还原完整的私钥
+     * 从 D 分量还原完整的 BCEC 私钥
+     *
      * @param d D 分量
-     * @return  BCECPrivateKey 完整的私钥
+     * @return BCECPrivateKey 完整的私钥
      */
-    public static BCECPrivateKey buildPrivateKeyFromD(BigInteger d) {
+    private static BCECPrivateKey buildPrivateKeyFromD(BigInteger d) {
         ECPrivateKeySpec ecPrivateKeySpec = new ECPrivateKeySpec(d, ecParameterSpec);
         return new BCECPrivateKey("EC", ecPrivateKeySpec, BouncyCastleProvider.CONFIGURATION);
     }
 
     /**
-     * 从 D 分量字节数组还原完整的私钥
+     * 从 D 分量字节数组还原完整的 BCEC 私钥
+     *
      * @param privateKeyD D 分量的字节数组
-     * @return  BCECPrivateKey 完整的私钥
+     * @return BCECPrivateKey 完整的私钥
      */
     public static BCECPrivateKey buildPrivateKeyFromD(byte[] privateKeyD) {
         return buildPrivateKeyFromD(new BigInteger(1, privateKeyD));
     }
 
     /**
-     * 从 X，Y 分量还原完整的公钥
+     * 从 X，Y 分量还原完整的 BCEC 公钥
+     *
      * @param x X 分量
      * @param y Y 分量
-     * @return  BCECPublicKey 完整的公钥
+     * @return BCECPublicKey 完整的公钥
      */
-    public static BCECPublicKey buildPublicKeyFromXY(BigInteger x, BigInteger y) {
+    private static BCECPublicKey buildPublicKeyFromXY(BigInteger x, BigInteger y) {
         ECPublicKeySpec ecPublicKeySpec = new ECPublicKeySpec(x9ECParameters.getCurve().createPoint(x, y), ecParameterSpec);
         return new BCECPublicKey("EC", ecPublicKeySpec, BouncyCastleProvider.CONFIGURATION);
     }
 
     /**
-     * 从 X，Y 分量拼合的字节数组还原完整的公钥
+     * 从 X，Y 分量拼合的字节数组还原完整的 BCEC 公钥
+     *
      * @param publicKeyXY X，Y 分量拼合的字节数组
-     * @return  BCECPublicKey 完整的公钥
+     * @return BCECPublicKey 完整的公钥
      */
     public static BCECPublicKey buildPublicKeyFromXY(byte[] publicKeyXY) {
         BigInteger x = getXFromBytes(publicKeyXY);
@@ -391,16 +460,34 @@ public class GMUtil {
         return buildPublicKeyFromXY(x, y);
     }
 
+    /**
+     * 从 D 分量的字节数组获取 D 分量
+     *
+     * @param privateKeyD D 分量的字节数组
+     * @return BigInteger D 分量
+     */
     private static BigInteger getDFromBytes(byte[] privateKeyD) {
         return new BigInteger(1, privateKeyD);
     }
 
+    /**
+     * 从 X||Y 拼接的字节数组获取 X 分量
+     *
+     * @param publicKeyXY X||Y 拼接的字节数组
+     * @return BigInteger X 分量
+     */
     private static BigInteger getXFromBytes(byte[] publicKeyXY) {
         byte[] x = new byte[RS_LEN];
         System.arraycopy(publicKeyXY, 0, x, 0, x.length);
         return new BigInteger(1, x);
     }
 
+    /**
+     * 从 X||Y 拼接的字节数组获取 Y 分量
+     *
+     * @param publicKeyXY X||Y 拼接的字节数组
+     * @return BigInteger Y 分量
+     */
     private static BigInteger getYFromBytes(byte[] publicKeyXY) {
         byte[] y = new byte[RS_LEN];
         System.arraycopy(publicKeyXY, RS_LEN, y, 0, y.length);
@@ -409,8 +496,9 @@ public class GMUtil {
 
     /**
      * 获取私钥分量 D 作为交换的私钥
-     * @param privateKey    私钥
-     * @return  byte[] 私钥分量 D 的字节数组
+     *
+     * @param privateKey 私钥
+     * @return byte[] 私钥分量 D 的字节数组
      */
     public static byte[] getPrivateKeyD(BCECPrivateKey privateKey) {
         return bigIntToFixedLengthBytes(privateKey.getD());
@@ -418,8 +506,9 @@ public class GMUtil {
 
     /**
      * 获取公钥分量 X，Y 作为交换的公钥
-     * @param publicKey     公钥
-     * @return  byte[] 公钥分量 X，Y 拼合的字节数组
+     *
+     * @param publicKey 公钥
+     * @return byte[] 公钥分量 X，Y 拼合的字节数组
      */
     public static byte[] getPublicKeyXY(BCECPublicKey publicKey) {
         byte[] x = bigIntToFixedLengthBytes(publicKey.getQ().getXCoord().toBigInteger());
