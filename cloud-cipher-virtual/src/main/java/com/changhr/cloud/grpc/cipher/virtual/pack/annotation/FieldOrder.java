@@ -5,16 +5,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/**
- * 包类型
- */
 @Retention(value = RetentionPolicy.RUNTIME)
-@Target(value = ElementType.TYPE)
-public @interface PackType {
+@Target(value = ElementType.FIELD)
+public @interface FieldOrder {
 
-    /**
-     * 协议版本号
-     * @return short
-     */
-    short typeNo();
+    int value() default 0;
 }

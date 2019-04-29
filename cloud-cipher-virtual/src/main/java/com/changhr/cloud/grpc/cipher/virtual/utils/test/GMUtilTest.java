@@ -4,9 +4,7 @@ import com.changhr.cloud.grpc.cipher.virtual.utils.GMUtil;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey;
 import org.bouncycastle.util.encoders.Hex;
-import org.springframework.util.Assert;
 
-import java.math.BigInteger;
 import java.security.KeyPair;
 
 /**
@@ -15,6 +13,7 @@ import java.security.KeyPair;
 public class GMUtilTest {
 
     public static void main(String[] args) {
+        // 生成 BCEC 密钥对
         KeyPair keyPair = GMUtil.generateKeyPair();
         String priKey = Hex.toHexString(keyPair.getPrivate().getEncoded());
         System.out.println(priKey);
@@ -23,12 +22,11 @@ public class GMUtilTest {
         System.out.println(pubKey);
         System.out.println(pubKey.length());
 
-//        System.out.println(keyPair.getPrivate().getAlgorithm());
-//        System.out.println(keyPair.getPublic().getAlgorithm());
-//
-//        System.out.println(keyPair.getPrivate().getFormat());
-//        System.out.println(keyPair.getPublic().getFormat());
+        // 公私钥格式
+        System.out.println(keyPair.getPrivate().getFormat());
+        System.out.println(keyPair.getPublic().getFormat());
 
+        // 打印交换私钥和公钥的 Hex 字符串
         String privateKey = Hex.toHexString(GMUtil.getPrivateKeyD((BCECPrivateKey) keyPair.getPrivate()));
         System.out.println(privateKey);
         System.out.println(privateKey.length());
@@ -36,42 +34,34 @@ public class GMUtilTest {
         System.out.println(publicKey);
         System.out.println(publicKey.length());
 
-        BigInteger srcD = ((BCECPrivateKey) keyPair.getPrivate()).getD();
-        String srcrecoverPriKey = Hex.toHexString(GMUtil.buildPrivateKeyFromD(srcD).getEncoded());
-        System.out.println(srcrecoverPriKey);
-
+        // 通过交换公私钥还原 BCEC 公私钥
         String recoverPriKey = Hex.toHexString(GMUtil.buildPrivateKeyFromD(Hex.decode(privateKey)).getEncoded());
         System.out.println(recoverPriKey);
         String recoverPubKey = Hex.toHexString(GMUtil.buildPublicKeyFromXY(Hex.decode(publicKey)).getEncoded());
         System.out.println(recoverPubKey);
-//        Assert.isTrue(priKey.equals(recoverPriKey), "private key recover success");
-//        Assert.isTrue(pubKey.equals(recoverPubKey), "private key recover success");
 
-        System.out.println(priKey.equals(recoverPriKey));
-        System.out.println(pubKey.equals(recoverPubKey));
+        // 打印各个分量
+        System.out.println("D = " + ((BCECPrivateKey)keyPair.getPrivate()).getD());
+        System.out.println("X = " + ((BCECPublicKey)keyPair.getPublic()).getQ().getXCoord());
+        System.out.println("Y = " + ((BCECPublicKey)keyPair.getPublic()).getQ().getYCoord());
 
-//        System.out.println("D = " + ((BCECPrivateKey)keyPair.getPrivate()).getD());
-//        System.out.println("X = " + ((BCECPublicKey)keyPair.getPublic()).getQ().getXCoord());
-//        System.out.println("Y = " + ((BCECPublicKey)keyPair.getPublic()).getQ().getYCoord());
-//
+        // 使用 SM2 私钥签名
         byte[] msg = "message digest".getBytes();
-        byte[] userId = "userid".getBytes();
-        byte[] sign = GMUtil.signSm3WithSm2(msg, userId, keyPair.getPrivate());
-        byte[] bytes = GMUtil.signSm3WithSm2(msg, userId, GMUtil.buildPrivateKeyFromD(Hex.decode(privateKey)));
-        System.out.println("sign1" + Hex.toHexString(sign));
-        System.out.println("sign2" + Hex.toHexString(bytes));
+        byte[] signBySrcPriKey = GMUtil.signSm3WithSm2(msg, keyPair.getPrivate());
+        byte[] signByRecoverPriKey = GMUtil.signSm3WithSm2(msg, GMUtil.buildPrivateKeyFromD(Hex.decode(privateKey)));
+        System.out.println("sign1 = " + Hex.toHexString(signBySrcPriKey));
+        System.out.println("sign2 = " + Hex.toHexString(signByRecoverPriKey));
 
+        // 使用公钥对签名验签
+        System.out.println(GMUtil.verifySm3WithSm2(msg, signBySrcPriKey, keyPair.getPublic()));
+        System.out.println(GMUtil.verifySm3WithSm2(msg, signByRecoverPriKey, keyPair.getPublic()));
 
-        System.out.println(GMUtil.verifySm3WithSm2(msg, userId, sign, keyPair.getPublic()));
-
+        // 公钥加密，私钥解密
         byte[] sm2Encrypt = GMUtil.sm2Encrypt(msg, keyPair.getPublic());
-
-        byte[] bytes1 = GMUtil.sm2Decrypt(sm2Encrypt, keyPair.getPrivate());
-        System.out.println(new String(bytes1));
-
-        byte[] signSm3WithSm2 = GMUtil.signSm3WithSm2(msg, userId, keyPair.getPrivate());
-
-        boolean b = GMUtil.verifySm3WithSm2(msg, userId, signSm3WithSm2, keyPair.getPublic());
-        System.out.println(b);
+        System.out.println(Hex.toHexString(sm2Encrypt));
+        byte[] srcPriKeyDecrypt = GMUtil.sm2Decrypt(sm2Encrypt, keyPair.getPrivate());
+        System.out.println("srcPriKeyDecrypt = " + new String(srcPriKeyDecrypt));
+        byte[] recoverPriKeyDecrypt = GMUtil.sm2Decrypt(sm2Encrypt, GMUtil.buildPrivateKeyFromD(Hex.decode(privateKey)));
+        System.out.println("recoverPriKeyDecrypt = " + new String(recoverPriKeyDecrypt));
     }
 }

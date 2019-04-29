@@ -3,7 +3,9 @@ package com.changhr.cloud.grpc.cipher.virtual.pack.communication;
 import com.changhr.cloud.grpc.cipher.virtual.pack.AbstractPack;
 import com.changhr.cloud.grpc.cipher.virtual.pack.annotation.ColumnProperty;
 import com.changhr.cloud.grpc.cipher.virtual.pack.annotation.ColumnType;
+import com.changhr.cloud.grpc.cipher.virtual.pack.annotation.FieldOrder;
 import com.changhr.cloud.grpc.cipher.virtual.pack.annotation.PackType;
+import lombok.Data;
 
 /**
  * 测试二级请求包
@@ -11,30 +13,27 @@ import com.changhr.cloud.grpc.cipher.virtual.pack.annotation.PackType;
  * @author daidai
  */
 @PackType(typeNo = 101)
+@Data
 public class EducationalBackground extends AbstractPack {
 
     /**
      * 开始年份
      */
+    @FieldOrder(1)
     @ColumnProperty(type = ColumnType.SHORT)
-    public short startYear;
+    private short startYear;
 
     /**
      * 结束年份
      */
+    @FieldOrder(2)
     @ColumnProperty(type = ColumnType.SHORT)
-    public short endYear;
+    private short endYear;
 
     /**
      * 学校名称
      */
+    @FieldOrder(3)
     @ColumnProperty(type = ColumnType.STRING)
-    public String school;
-
-    @Override
-    public String toString() {
-        return "EducationalBackground [startYear=" + startYear + ", endYear="
-                + endYear + ", school=" + school + "]";
-    }
-
+    private String school;
 }

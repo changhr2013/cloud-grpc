@@ -5,7 +5,6 @@ import com.changhr.cloud.grpc.cipher.virtual.pack.annotation.PackType;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-
 /**
  * 包授权管理
  * @author changhr
@@ -15,19 +14,17 @@ public class PackAuthorize {
     /**
      * 存放通讯包类型号和通讯包对应关系
      */
-    private static final ConcurrentMap<Short, Class<?>> typeNoAndPackMap ;
+    private static final ConcurrentMap<Short, Class<?>> typeNoAndPackMap;
 
     static{
-
-        typeNoAndPackMap = new ConcurrentHashMap<Short, Class<?>>();
-
+        typeNoAndPackMap = new ConcurrentHashMap<>();
         registerPack(
                 com.changhr.cloud.grpc.cipher.virtual.pack.communication.EducationalBackground.class,
-                com.changhr.cloud.grpc.cipher.virtual.pack.communication.TestRequest.class);
-
+                com.changhr.cloud.grpc.cipher.virtual.pack.communication.TestRequest.class
+        );
     }
 
-    private PackAuthorize(){};
+    private PackAuthorize(){}
 
     private static PackAuthorize instance;
 
@@ -49,13 +46,12 @@ public class PackAuthorize {
     public static void registerPack(Class<?>... classes){
 
         for(Class<?> clazz : classes){
-            PackType packType = (PackType) clazz.getAnnotation(PackType.class);
+            PackType packType = clazz.getAnnotation(PackType.class);
             typeNoAndPackMap.put(packType.typeNo(), clazz);
         }
-
     }
 
-    public ConcurrentMap<Short, Class<?>> getTypenoandpackmap() {
+    public ConcurrentMap<Short, Class<?>> getTypeNoAndPackMap() {
         return typeNoAndPackMap;
     }
 

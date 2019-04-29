@@ -4,6 +4,7 @@ import com.changhr.cloud.grpc.cipher.virtual.pack.annotation.ColumnProperty;
 import com.changhr.cloud.grpc.cipher.virtual.pack.annotation.ColumnType;
 import com.changhr.cloud.grpc.cipher.virtual.pack.AbstractPack;
 import com.changhr.cloud.grpc.cipher.virtual.pack.annotation.PackType;
+import lombok.Data;
 
 import java.util.List;
 
@@ -13,75 +14,66 @@ import java.util.List;
  * @author changhr
  */
 @PackType(typeNo = 100)
+@Data
 public class TestRequest extends AbstractPack {
 
     /**
      * 在进行tcp通讯时，根据此序列来对应请求包和返回包
      */
     @ColumnProperty(type = ColumnType.LONG)
-    public long seq;
+    private long seq;
 
     /**
      * 用户名
      */
     @ColumnProperty(type = ColumnType.STRING)
-    public String userName;
+    private String userName;
 
     /**
      * 密码
      */
     @ColumnProperty(type = ColumnType.STRING)
-    public String pwd;
+    private String pwd;
 
     /**
      * 真实姓名
      */
     @ColumnProperty(type = ColumnType.STRING)
-    public String trueName;
+    private String trueName;
 
     /**
      * 手机号
      */
     @ColumnProperty(type = ColumnType.LONG)
-    public long telNo;
+    private long telNo;
 
     /**
      * 性别，0为女性、1为男性
      */
     @ColumnProperty(type = ColumnType.BYTE)
-    public byte gender;
+    private byte gender;
 
     /**
      * 年龄
      */
     @ColumnProperty(type = ColumnType.SHORT)
-    public short age;
+    private short age;
 
     /**
      * 身高
      */
     @ColumnProperty(type = ColumnType.SHORT)
-    public short height;
+    private short height;
 
     /**
      * 体重
      */
     @ColumnProperty(type = ColumnType.FLOAT)
-    public float weight;
+    private float weight;
 
     /**
      * 教育背景
      */
     @ColumnProperty(type = ColumnType.LIST_OBJECT)
-    public List<EducationalBackground> eduBackground;
-
-    @Override
-    public String toString() {
-        return "TestRequest [seq=" + seq + ", userName=" + userName + ", pwd="
-                + pwd + ", trueName=" + trueName + ", telNo=" + telNo
-                + ", gender=" + gender + ", age=" + age + ", height=" + height
-                + ", weight=" + weight + ", eduBackground=" + eduBackground
-                + "]";
-    }
-
+    private List<EducationalBackground> eduBackground;
 }
