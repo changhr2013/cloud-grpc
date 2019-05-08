@@ -17,7 +17,7 @@ import java.security.Security;
  * @author changhr
  * @create 2019-05-08 10:21
  */
-@SuppressWarnings("WeakerAccess")
+@SuppressWarnings({"WeakerAccess", "unused"})
 public abstract class SM4Util {
 
     static {

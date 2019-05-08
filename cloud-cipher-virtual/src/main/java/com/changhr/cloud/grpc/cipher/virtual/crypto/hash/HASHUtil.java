@@ -15,7 +15,7 @@ import java.security.Security;
  * @author changhr
  * @create 2019-05-08 12:45
  */
-@SuppressWarnings({"unused", "WeakerAccess"})
+@SuppressWarnings({"WeakerAccess", "unused"})
 public abstract class HASHUtil {
 
     static {

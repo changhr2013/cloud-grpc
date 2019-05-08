@@ -15,7 +15,7 @@ import java.util.Map;
  * @author changhr
  * @create 2019-05-08 14:52
  */
-@SuppressWarnings({"unused", "WeakerAccess"})
+@SuppressWarnings({"WeakerAccess", "unused"})
 public abstract class RSAUtil {
 
     /**

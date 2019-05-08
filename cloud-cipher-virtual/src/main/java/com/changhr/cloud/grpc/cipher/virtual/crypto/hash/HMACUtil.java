@@ -17,7 +17,7 @@ import java.util.Base64;
  * @author changhr
  * @create 2019-05-08 10:53
  */
-@SuppressWarnings({"unused", "WeakerAccess"})
+@SuppressWarnings({"WeakerAccess", "unused"})
 public abstract class HMACUtil {
 
     // 密钥算法类型
