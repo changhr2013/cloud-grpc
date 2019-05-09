@@ -21,6 +21,21 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.github.openfeign</groupId>
+            <artifactId>feign-gson</artifactId>
+            <version>10.2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.openfeign</groupId>
+            <artifactId>feign-okhttp</artifactId>
+            <version>10.2.0</version>
+        </dependency>
+
         <!-- Starter：Redis -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
