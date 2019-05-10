@@ -14,7 +14,7 @@ public enum TokenApiFactory {
     private TokenApi instance;
 
     TokenApiFactory() {
-        instance = TokenClient.connect();
+        instance = TokenBoot.connect();
     }
 
     public TokenApi getInstance() {
