@@ -4,11 +4,16 @@
 #spring:
 #  application:
 #    name: cloud-apollo-client
-
-#eureka:
-#  client:
-#    service-url:
-#      defaultZone: http://192.168.1.37:8080/eureka/
+#  redis:
+#    database: 0
+#    host: redis.changhr.com
+#    port: 6379
+#    lettuce:
+#      pool:
+#        max-active: 8
+#        max-idle: 8
+#        min-idle: 0
+#        max-wait: -1ms
 
 #management:
 #  endpoints:
@@ -19,20 +24,17 @@
 #    tags:
 #      application: cloud-apollo-client
 
-#spring:
-#  redis:
-#    database: 0
-#    host: 192.168.1.37
-#    port: 6379
-#    lettuce:
-#      pool:
-#        max-active: 8
-#        max-idle: 8
-#        min-idle: 0
-#        max-wait: -1ms
+#service:
+#  token:
+#    url: http://iot-s-token.senseyun.com
+
+#eureka:
+#  client:
+#    service-url:
+#      defaultZone: http://127.0.0.1:8761/eureka/
 
 apollo:
   bootstrap:
     enabled: true
     namespaces: application
-  meta: http://192.168.1.37:18080
+  meta: http://apollo.config.changhr.com

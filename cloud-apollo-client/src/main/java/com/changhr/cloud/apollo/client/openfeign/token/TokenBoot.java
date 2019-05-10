@@ -41,7 +41,7 @@ public class TokenBoot {
                 .decoder(new GsonDecoder())
                 .errorDecoder(new ClientErrorDecoder(decoder))
                 .logger(new Logger.ErrorLogger())
-                .logLevel(Logger.Level.BASIC)
+                .logLevel(Logger.Level.FULL)
                 .target(TokenApi.class, url);
     }
 

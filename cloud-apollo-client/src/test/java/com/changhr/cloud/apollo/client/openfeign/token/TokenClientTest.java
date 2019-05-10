@@ -4,7 +4,7 @@ import com.changhr.cloud.apollo.client.openfeign.ticket.TicketApi;
 import com.changhr.cloud.apollo.client.openfeign.ticket.TicketClient;
 import com.changhr.cloud.apollo.client.openfeign.ticket.pojo.TicketMap;
 import com.changhr.cloud.apollo.client.openfeign.token.exception.ClientException;
-import com.changhr.cloud.apollo.client.openfeign.token.pojo.ResultVO;
+import com.changhr.cloud.apollo.client.common.ResultVO;
 import com.changhr.cloud.apollo.client.openfeign.token.pojo.request.SwapSrcUserIdListReq;
 import com.changhr.cloud.apollo.client.openfeign.token.pojo.request.SwapUserIdListReq;
 import com.changhr.cloud.apollo.client.openfeign.token.pojo.request.Ticket;
@@ -52,12 +52,8 @@ public class TokenClientTest {
     @Test
     public void test011GetToken() {
         String ticket = ticketApi.buildTicket(TicketMap.builder().type(0).appId(11).srcId("13500000042").build());
-        try {
-            GetTokenRspData token = tokenClient.getToken(ticket);
-            System.out.println(token);
-        } catch (ClientException e) {
-            System.out.println(e.getMessage());
-        }
+        GetTokenRspData token = tokenClient.getToken(ticket);
+        System.out.println(token);
     }
 
     @Test

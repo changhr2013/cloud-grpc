@@ -1,4 +1,4 @@
-package com.changhr.cloud.apollo.client.openfeign.token.pojo;
+package com.changhr.cloud.apollo.client.common;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
