@@ -1,4 +1,4 @@
-package com.changhr.cloud.apollo.client.openfeign.token;
+package com.changhr.cloud.apollo.client.feign.token;
 
 /**
  * 获取 TokenApi 的工厂，使用枚举实现单例模式

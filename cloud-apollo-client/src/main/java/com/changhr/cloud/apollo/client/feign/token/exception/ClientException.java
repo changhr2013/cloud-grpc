@@ -1,6 +1,5 @@
-package com.changhr.cloud.apollo.client.openfeign.token.exception;
+package com.changhr.cloud.apollo.client.feign.token.exception;
 
-import com.changhr.cloud.apollo.client.common.ResultVO;
 import lombok.Getter;
 
 /**

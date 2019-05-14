@@ -1,15 +1,13 @@
 package com.changhr.cloud.apollo.client.controller;
 
 import com.changhr.cloud.apollo.client.common.ResultVO;
-import com.changhr.cloud.apollo.client.openfeign.ticket.TicketApi;
-import com.changhr.cloud.apollo.client.openfeign.ticket.TicketClient;
-import com.changhr.cloud.apollo.client.openfeign.ticket.pojo.TicketMap;
-import com.changhr.cloud.apollo.client.openfeign.token.TokenApi;
-import com.changhr.cloud.apollo.client.openfeign.token.TokenApiFactory;
-import com.changhr.cloud.apollo.client.openfeign.token.pojo.request.Ticket;
-import com.changhr.cloud.apollo.client.openfeign.token.pojo.request.Token;
-import com.changhr.cloud.apollo.client.openfeign.token.pojo.response.GetTokenRspData;
-import feign.Param;
+import com.changhr.cloud.apollo.client.feign.ticket.TicketApi;
+import com.changhr.cloud.apollo.client.feign.ticket.TicketClient;
+import com.changhr.cloud.apollo.client.feign.ticket.pojo.TicketMap;
+import com.changhr.cloud.apollo.client.feign.token.TokenApi;
+import com.changhr.cloud.apollo.client.feign.token.TokenApiFactory;
+import com.changhr.cloud.apollo.client.feign.token.pojo.request.Ticket;
+import com.changhr.cloud.apollo.client.feign.token.pojo.response.GetTokenRspData;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.web.bind.annotation.*;

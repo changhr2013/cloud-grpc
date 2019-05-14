@@ -1,4 +1,4 @@
-package com.changhr.cloud.apollo.client.openfeign.ticket.pojo;
+package com.changhr.cloud.apollo.client.feign.ticket.pojo;
 
 import lombok.Builder;
 import lombok.Data;

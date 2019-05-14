@@ -1,6 +1,6 @@
-package com.changhr.cloud.apollo.client.openfeign.token;
+package com.changhr.cloud.apollo.client.feign.token;
 
-import com.changhr.cloud.apollo.client.openfeign.token.exception.ClientErrorDecoder;
+import com.changhr.cloud.apollo.client.feign.token.exception.ClientErrorDecoder;
 import feign.Feign;
 import feign.Logger;
 import feign.codec.Decoder;

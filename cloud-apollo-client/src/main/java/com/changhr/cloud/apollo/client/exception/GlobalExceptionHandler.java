@@ -2,7 +2,6 @@ package com.changhr.cloud.apollo.client.exception;
 
 import com.changhr.cloud.apollo.client.common.ResultVO;
 import com.changhr.cloud.apollo.client.enums.ResultEnum;
-import com.changhr.cloud.apollo.client.openfeign.token.exception.ClientException;
 import com.changhr.cloud.apollo.client.utils.ResultVOUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.ControllerAdvice;

@@ -2,7 +2,12 @@ package com.changhr.cloud.grpc.cipher.virtual.crypto.asymmetric;
 
 import org.bouncycastle.asn1.*;
 import org.bouncycastle.asn1.gm.GMNamedCurves;
+import org.bouncycastle.asn1.x500.X500NameBuilder;
+import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x9.X9ECParameters;
+import org.bouncycastle.cert.X509v1CertificateBuilder;
+import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
+import org.bouncycastle.cert.jcajce.JcaX509v1CertificateBuilder;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.bouncycastle.crypto.engines.SM2Engine;
 import org.bouncycastle.crypto.params.ECDomainParameters;
@@ -13,21 +18,27 @@ import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey;
 import org.bouncycastle.jcajce.spec.SM2ParameterSpec;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.jce.spec.ECNamedCurveGenParameterSpec;
 import org.bouncycastle.jce.spec.ECParameterSpec;
 import org.bouncycastle.jce.spec.ECPrivateKeySpec;
 import org.bouncycastle.jce.spec.ECPublicKeySpec;
+import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
+import org.bouncycastle.operator.ContentSigner;
+import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.bouncycastle.util.encoders.Hex;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.math.BigInteger;
 import java.security.*;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import static java.util.Calendar.YEAR;
 
 /**
  * 国密 SM2 非对称加密算法工具类
@@ -515,5 +526,65 @@ public abstract class SM2Util {
         byte[] y = new byte[RS_LEN];
         System.arraycopy(swapPublicKey, RS_LEN, y, 0, y.length);
         return new BigInteger(1, y);
+    }
+
+    public static void main(String[] args)
+            throws Exception
+    {
+//        if (args.length != 2)
+//        {
+//            System.err.println("Usage: GenTrustAnchorKeyStore keyStoreName keyStorePassword");
+//            System.exit(1);
+//        }
+        args = new String[2];
+        args[0] = "simple";
+        args[1] = "123456";
+
+        Security.addProvider(new BouncyCastleProvider());
+
+        KeyPairGenerator kpGen = KeyPairGenerator.getInstance("ECDSA", "BC");
+
+        kpGen.initialize(new ECNamedCurveGenParameterSpec("secp256r1"));
+
+        KeyPair kp = kpGen.generateKeyPair();
+
+        X500NameBuilder builder = new X500NameBuilder(BCStyle.INSTANCE);
+
+        builder.addRDN(BCStyle.C, "AU");
+        builder.addRDN(BCStyle.O, "Crypto Workshop Pty Ltd");
+        builder.addRDN(BCStyle.OU, "Ximix Node Test CA");
+        builder.addRDN(BCStyle.L, "Melbourne");
+        builder.addRDN(BCStyle.ST, "Victoria");
+        builder.addRDN(BCStyle.CN, "Trust Anchor");
+
+        Date startDate = new Date(System.currentTimeMillis() - 50000);
+
+        ContentSigner sigGen = new JcaContentSignerBuilder("SHA256withECDSA")
+                .setProvider("BC")
+                .build(kp.getPrivate());
+
+        X509v1CertificateBuilder certGen1 = new JcaX509v1CertificateBuilder(
+                builder.build(),
+                BigInteger.valueOf(1),
+                startDate,
+                new Date(System.currentTimeMillis() + 2 * YEAR),
+                builder.build(),
+                kp.getPublic());
+
+        X509Certificate cert = new JcaX509CertificateConverter().setProvider("BC").getCertificate(certGen1.build(sigGen));
+
+        KeyStore keyStore = KeyStore.getInstance("PKCS12", "BC");
+
+        keyStore.load(null, null);
+
+        keyStore.setKeyEntry("trust", kp.getPrivate(), null, new Certificate[] { cert });
+
+        keyStore.store(new FileOutputStream(args[0] + ".p12"), args[1].toCharArray());
+
+        JcaPEMWriter pWrt = new JcaPEMWriter(new FileWriter(args[0] + ".pem"));
+
+        pWrt.writeObject(cert);
+
+        pWrt.close();
     }
 }

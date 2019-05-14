@@ -1,4 +1,4 @@
-package com.changhr.cloud.apollo.client.openfeign.ticket;
+package com.changhr.cloud.apollo.client.feign.ticket;
 
 import feign.Feign;
 import feign.okhttp.OkHttpClient;

@@ -1,4 +1,4 @@
-package com.changhr.cloud.apollo.client.openfeign.token.pojo.request;
+package com.changhr.cloud.apollo.client.feign.token.pojo.request;
 
 import lombok.Builder;
 import lombok.Data;

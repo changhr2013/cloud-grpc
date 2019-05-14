@@ -5,9 +5,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -55,7 +57,7 @@ public final class RedisUtil {
      * 根据 key 获取过期时间
      *
      * @param key 键值，不能为 null
-     * @return 时间(单位：秒) 返回 0 代表为永久有效
+     * @return 时间(单位 ： 秒) 返回 0 代表为永久有效
      */
     public long getExpire(String key) {
         return redisTemplate.getExpire(key, TimeUnit.SECONDS);
@@ -104,8 +106,9 @@ public final class RedisUtil {
 
     /**
      * 普通缓存获取字符串
+     *
      * @param key 键
-     * @return  字符串值
+     * @return 字符串值
      */
     public String getString(String key) {
         return key == null ? null : stringRedisTemplate.opsForValue().get(key);
@@ -178,26 +181,38 @@ public final class RedisUtil {
         }
         return redisTemplate.opsForValue().increment(key, -delta);
     }
-    // ================================Map=================================
+
+    // ============================== hash ==============================
 
     /**
      * HashGet
      *
-     * @param key  键 不能为 null
-     * @param item 项 不能为 null
+     * @param key     键 不能为 null
+     * @param hashKey 项 不能为 null
      * @return 值
      */
-    public Object hget(String key, String item) {
-        return redisTemplate.opsForHash().get(key, item);
+    public Object hGet(String key, String hashKey) {
+        return redisTemplate.opsForHash().get(key, hashKey);
+    }
+
+    /**
+     * 获取多个 hashKey 对应的值
+     *
+     * @param key      hash 表 key
+     * @param hashKeys hash 表中记录的 key 集合
+     * @return key 集合对应的 value 集合
+     */
+    public List<Object> hMGet(String key, List<Object> hashKeys) {
+        return redisTemplate.opsForHash().multiGet(key, hashKeys);
     }
 
     /**
      * 获取 hashKey 对应的所有键值
      *
      * @param key 键
-     * @return 对应的多个键值
+     * @return 对应的多个键值对
      */
-    public Map<Object, Object> hmget(String key) {
+    public Map<Object, Object> hGetAll(String key) {
         return redisTemplate.opsForHash().entries(key);
     }
 
@@ -208,7 +223,7 @@ public final class RedisUtil {
      * @param map 对应多个键值
      * @return true 成功 false 失败
      */
-    public boolean hmset(String key, Map<String, Object> map) {
+    public boolean hMSet(String key, Map<String, Object> map) {
         try {
             redisTemplate.opsForHash().putAll(key, map);
             return true;
@@ -226,7 +241,7 @@ public final class RedisUtil {
      * @param time 时间(单位：秒)
      * @return true：成功 false：失败
      */
-    public boolean hmset(String key, Map<String, Object> map, long time) {
+    public boolean hMSet(String key, Map<String, Object> map, long time) {
         try {
             redisTemplate.opsForHash().putAll(key, map);
             if (time > 0) {
@@ -247,7 +262,7 @@ public final class RedisUtil {
      * @param value 值
      * @return true：成功 false：失败
      */
-    public boolean hset(String key, String item, Object value) {
+    public boolean hSet(String key, String item, Object value) {
         try {
             redisTemplate.opsForHash().put(key, item, value);
             return true;
@@ -258,15 +273,15 @@ public final class RedisUtil {
     }
 
     /**
-     * 向一张hash表中放入数据，如果不存在将创建
+     * 向一张 hash 表中放入数据，如果不存在将创建
      *
      * @param key   键
      * @param item  项
      * @param value 值
-     * @param time  时间(单位：秒) 注意：如果已存在的 hash 表有时间,这里将会替换原有的时间
+     * @param time  时间(单位：秒) 注意：如果已存在的 hash 表有时间，这里将会替换原有的时间
      * @return true 成功 false失败
      */
-    public boolean hset(String key, String item, Object value, long time) {
+    public boolean hSet(String key, String item, Object value, long time) {
         try {
             redisTemplate.opsForHash().put(key, item, value);
             if (time > 0) {
@@ -284,9 +299,10 @@ public final class RedisUtil {
      *
      * @param key  键 不能为 null
      * @param item 项 可以是多个，不能为 null
+     * @return 被成功删除字段的数量
      */
-    public void hdel(String key, Object... item) {
-        redisTemplate.opsForHash().delete(key, item);
+    public long hDel(String key, Object... item) {
+        return redisTemplate.opsForHash().delete(key, item);
     }
 
     /**
@@ -296,34 +312,24 @@ public final class RedisUtil {
      * @param item 项 不能为 null
      * @return true：存在 false：不存在
      */
-    public boolean hHasKey(String key, String item) {
+    public boolean hExists(String key, String item) {
         return redisTemplate.opsForHash().hasKey(key, item);
     }
 
     /**
-     * hash 递增 如果不存在，就会创建一个，并把新增后的值返回
+     * 为 hash 表 key 中的域 field 的值加上增量 increment
+     * 增量也可以是负数，相当于对给定域进行减法操作
      *
-     * @param key  键
-     * @param item 项
-     * @param by   要增加几(大于 0)
-     * @return double
+     * @param key       键
+     * @param field     项
+     * @param increment 增量（可以为负数）
+     * @return 执行 hIncrBy 命令后，hash 表 key 中域 field 的值
      */
-    public double hincr(String key, String item, double by) {
-        return redisTemplate.opsForHash().increment(key, item, by);
+    public double hIncrBy(String key, String field, double increment) {
+        return redisTemplate.opsForHash().increment(key, field, increment);
     }
 
-    /**
-     * hash 递减
-     *
-     * @param key  键
-     * @param item 项
-     * @param by   要减少记(小于 0)
-     * @return double
-     */
-    public double hdecr(String key, String item, double by) {
-        return redisTemplate.opsForHash().increment(key, item, -by);
-    }
-    // ============================set=============================
+    // ============================== set ==============================
 
     /**
      * 根据 key 获取 Set 中的所有值
@@ -331,7 +337,7 @@ public final class RedisUtil {
      * @param key 键
      * @return Set<Object>
      */
-    public Set<Object> sGet(String key) {
+    public Set<Object> setGet(String key) {
         try {
             return redisTemplate.opsForSet().members(key);
         } catch (Exception e) {
@@ -347,7 +353,7 @@ public final class RedisUtil {
      * @param value 值
      * @return true：存在 false：不存在
      */
-    public boolean sHasKey(String key, Object value) {
+    public boolean setHasKey(String key, Object value) {
         try {
             return redisTemplate.opsForSet().isMember(key, value);
         } catch (Exception e) {
@@ -363,7 +369,7 @@ public final class RedisUtil {
      * @param values 值 可以是多个
      * @return 成功个数
      */
-    public long sSet(String key, Object... values) {
+    public long setAdd(String key, Object... values) {
         try {
             return redisTemplate.opsForSet().add(key, values);
         } catch (Exception e) {
@@ -380,7 +386,7 @@ public final class RedisUtil {
      * @param values 值 可以是多个
      * @return 成功个数
      */
-    public long sSetAndTime(String key, long time, Object... values) {
+    public long setAddAndTime(String key, long time, Object... values) {
         try {
             Long count = redisTemplate.opsForSet().add(key, values);
             if (time > 0) {
@@ -399,7 +405,7 @@ public final class RedisUtil {
      * @param key 键
      * @return long
      */
-    public long sGetSetSize(String key) {
+    public long setSize(String key) {
         try {
             return redisTemplate.opsForSet().size(key);
         } catch (Exception e) {
@@ -423,7 +429,281 @@ public final class RedisUtil {
             return 0;
         }
     }
-    // ===============================list=================================
+
+    // ============================== zset ==============================
+
+    /**
+     * 用于将一个成员元素及其分数值加入到有序集当中
+     *
+     * @param key   键值
+     * @param value 值
+     * @param score 分数
+     * @return Boolean
+     */
+    public Boolean zAdd(String key, Object value, double score) {
+        try {
+            return redisTemplate.opsForZSet().add(key, value, score);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * ZSet 计算有序集合中指定分数区间的成员数量
+     *
+     * @param key 键
+     * @param min 最小分数
+     * @param max 最大分数
+     * @return long
+     */
+    public long zCount(String key, long min, long max) {
+        try {
+            return redisTemplate.opsForZSet().count(key, min, max);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+    /**
+     * ZSet 计算集合中元素的数量
+     *
+     * @param key 键值
+     * @return 当 key 存在且是有序集合类型时，返回有序集的基数，当 key 不存在时，返回 0
+     */
+    public long zCard(String key) {
+        try {
+            return redisTemplate.opsForZSet().zCard(key);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+    /**
+     * 移除有序集中的一个或多个成员，不存在的成员将被忽略
+     *
+     * @param key    键值
+     * @param values 集合成员
+     * @return 被成功移除的成员的数量，不包括被忽略的成员
+     */
+    public long zRem(String key, Object... values) {
+        try {
+            return redisTemplate.opsForZSet().remove(key, values);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+    /**
+     * 移除有序集中，指定排名（rank）区间内的所有成员
+     *
+     * @param key   键值
+     * @param start 起始索引
+     * @param end   结束索引
+     * @return 被移除成员的数量
+     */
+    public long zRemRangeByRank(String key, long start, long end) {
+        try {
+            return redisTemplate.opsForZSet().removeRange(key, start, end);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+    /**
+     * 移除有序集中，指定分数（score）区间内的所有成员
+     *
+     * @param key 键值
+     * @param min 最小分数
+     * @param max 最大分数
+     * @return 被移除成员的数量
+     */
+    public long zRemRangeByScore(String key, long min, long max) {
+        try {
+            return redisTemplate.opsForZSet().removeRangeByScore(key, min, max);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+    /**
+     * ZSet score 的增加或者减少
+     * 可以传递一个负数值，让分数减去相应的值
+     *
+     * @param key   键
+     * @param value value
+     * @param score score
+     * @return member 成员的新分数值
+     */
+    public double zIncrby(String key, String value, double score) {
+        try {
+            return redisTemplate.opsForZSet().incrementScore(key, value, score);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+    /**
+     * ZSet 查找 value 对应的 score
+     *
+     * @param key   键
+     * @param value value
+     * @return double
+     */
+    public double zScore(String key, String value) {
+        try {
+            return redisTemplate.opsForZSet().score(key, value);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+    /**
+     * ZSet 判断 value 在 ZSet 中的排名
+     * 其中有序集成员按分数值递增（从小到大）排序
+     *
+     * @param key   有序集（ZSet）的 key
+     * @param value 成员
+     * @return 返回 member 的正序排名
+     */
+    public long zRank(String key, String value) {
+        try {
+            return redisTemplate.opsForZSet().rank(key, value);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+    /**
+     * ZSet 判断有序集中成员的排名
+     * 其中有序集成员按分数值递减（从大到小）排序
+     *
+     * @param key   有序集（ZSet）的 key
+     * @param value 成员
+     * @return 返回 member 的倒序排名
+     */
+    public long zRevRank(String key, String value) {
+        try {
+            return redisTemplate.opsForZSet().reverseRank(key, value);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+    /**
+     * 查询集合中指定顺序的值， 0 -1 表示获取全部的集合内容
+     *
+     * @param key   键
+     * @param start 起始索引
+     * @param end   结束索引
+     * @return 指定区间内，有序集成员的列表，score 小的在前面
+     */
+    public Set<Object> zRange(String key, long start, long end) {
+        try {
+            return redisTemplate.opsForZSet().range(key, start, end);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * 查询集合中指定顺序的值和 score，0 -1 表示获取全部的集合内容
+     *
+     * @param key   键
+     * @param start 起始索引
+     * @param end   结束索引
+     * @return 指定区间内，带有分数值的有序集成员的列表，score 小的在前面
+     */
+    public Set<ZSetOperations.TypedTuple<Object>> zRangeWithScore(String key, long start, long end) {
+        try {
+            return redisTemplate.opsForZSet().rangeWithScores(key, start, end);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * 返回有序集中指定分数区间内的所有成员
+     * 有序集成员按分数值递减（从小到大）的次序排列
+     *
+     * @param key 键值
+     * @param min 最小分数值
+     * @param max 最大分数值
+     * @return 指定区间内，有序集成员的列表
+     */
+    public Set<Object> zRangeByScore(String key, int min, int max) {
+        try {
+            return redisTemplate.opsForZSet().rangeByScore(key, min, max);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * 查询集合中指定顺序的值
+     *
+     * @param key   键
+     * @param start 起始索引
+     * @param end   结束索引
+     * @return 指定区间内，有序集成员的列表，score 大的在前面
+     */
+    public Set<Object> zRevRange(String key, long start, long end) {
+        try {
+            return redisTemplate.opsForZSet().reverseRange(key, start, end);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * 查询集合中指定顺序的值和 score，0 -1 表示获取全部的集合内容
+     *
+     * @param key   键
+     * @param start 起始索引
+     * @param end   结束索引
+     * @return 指定区间内，带有分数值的有序集成员的列表，score 大的在前面
+     */
+    public Set<ZSetOperations.TypedTuple<Object>> zRevRangeWithScore(String key, long start, long end) {
+        try {
+            return redisTemplate.opsForZSet().reverseRangeWithScores(key, start, end);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * 返回有序集中指定分数区间内的所有成员
+     * 有序集成员按分数值递减（从大到小）的次序排列
+     *
+     * @param key 键值
+     * @param min 最小分数值
+     * @param max 最大分数值
+     * @return 指定区间内，有序集成员的列表
+     */
+    public Set<Object> zRevRangeByScore(String key, int min, int max) {
+        try {
+            return redisTemplate.opsForZSet().reverseRangeByScore(key, min, max);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    // ============================== list ==============================
 
     /**
      * 获取 list 缓存的内容
@@ -462,7 +742,7 @@ public final class RedisUtil {
      *
      * @param key   键
      * @param index 索引 index >= 0 时，0 表头，1 第二个元素，依次类推；
-     *                   index < 0 时，-1，表尾，-2 倒数第二个元素，依次类推
+     *              index < 0 时，-1，表尾，-2 倒数第二个元素，依次类推
      * @return Object
      */
     public Object lGetIndex(String key, long index) {

@@ -1,6 +1,6 @@
-package com.changhr.cloud.apollo.client.openfeign.ticket;
+package com.changhr.cloud.apollo.client.feign.ticket;
 
-import com.changhr.cloud.apollo.client.openfeign.ticket.pojo.TicketMap;
+import com.changhr.cloud.apollo.client.feign.ticket.pojo.TicketMap;
 import feign.QueryMap;
 import feign.RequestLine;
 

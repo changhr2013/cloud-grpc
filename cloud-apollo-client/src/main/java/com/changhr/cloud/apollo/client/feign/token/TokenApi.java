@@ -1,8 +1,8 @@
-package com.changhr.cloud.apollo.client.openfeign.token;
+package com.changhr.cloud.apollo.client.feign.token;
 
 import com.changhr.cloud.apollo.client.common.ResultVO;
-import com.changhr.cloud.apollo.client.openfeign.token.pojo.request.*;
-import com.changhr.cloud.apollo.client.openfeign.token.pojo.response.*;
+import com.changhr.cloud.apollo.client.feign.token.pojo.request.*;
+import com.changhr.cloud.apollo.client.feign.token.pojo.response.*;
 import feign.*;
 import java.util.List;
 

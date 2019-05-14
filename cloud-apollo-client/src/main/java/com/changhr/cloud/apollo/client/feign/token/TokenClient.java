@@ -1,9 +1,9 @@
-package com.changhr.cloud.apollo.client.openfeign.token;
+package com.changhr.cloud.apollo.client.feign.token;
 
-import com.changhr.cloud.apollo.client.openfeign.token.exception.ClientException;
+import com.changhr.cloud.apollo.client.feign.token.exception.ClientException;
 import com.changhr.cloud.apollo.client.common.ResultVO;
-import com.changhr.cloud.apollo.client.openfeign.token.pojo.request.Ticket;
-import com.changhr.cloud.apollo.client.openfeign.token.pojo.response.GetTokenRspData;
+import com.changhr.cloud.apollo.client.feign.token.pojo.request.Ticket;
+import com.changhr.cloud.apollo.client.feign.token.pojo.response.GetTokenRspData;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
