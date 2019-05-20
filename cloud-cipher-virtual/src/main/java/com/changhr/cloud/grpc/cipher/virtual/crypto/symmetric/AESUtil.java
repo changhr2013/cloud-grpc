@@ -108,6 +108,22 @@ public abstract class AESUtil {
         }
     }
 
+    public static byte[] encryptByGCM(byte[] data, byte[] key, final String cipherAlgorithm) {
+        // 还原密钥
+        Key k = toKey(key);
+        try {
+            Cipher cipher = Cipher.getInstance(cipherAlgorithm);
+            // 初始化，设置为加密模式
+            cipher.init(Cipher.ENCRYPT_MODE, k);
+            byte[] iv = cipher.getIV();
+            assert iv.length == 12;
+            // 执行操作
+            return cipher.doFinal(data);
+        } catch (Exception e) {
+            throw new RuntimeException("AES encrypt error", e);
+        }
+    }
+
     /**
      * 加密
      *
