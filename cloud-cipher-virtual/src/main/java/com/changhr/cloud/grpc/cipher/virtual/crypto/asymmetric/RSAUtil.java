@@ -1,6 +1,7 @@
 package com.changhr.cloud.grpc.cipher.virtual.crypto.asymmetric;
 
 import javax.crypto.Cipher;
+import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
@@ -22,6 +23,10 @@ public abstract class RSAUtil {
      * 密钥算法类型
      */
     public static final String KEY_ALGORITHM = "RSA";
+
+    public static final String ECB_NO_PADDING = "RSA/ECB/NoPadding";
+
+    public static final String ECB_PKCS_1_PADDING = "RSA/ECB/PKCS1Padding";
 
     /**
      * 签名算法
@@ -106,9 +111,10 @@ public abstract class RSAUtil {
      *
      * @param data   待解密数据
      * @param priKey 私钥
+     * @param cipherAlgorithm 算法/工作模式/填充方式
      * @return byte[] 解密数据
      */
-    public static byte[] decryptByPrivateKey(byte[] data, byte[] priKey) {
+    public static byte[] decryptByPrivateKey(byte[] data, byte[] priKey, final String cipherAlgorithm) {
         // 获取私钥
         PKCS8EncodedKeySpec pkcs8EncodedKeySpec = new PKCS8EncodedKeySpec(priKey);
         try {
@@ -116,7 +122,7 @@ public abstract class RSAUtil {
             // 生成私钥
             PrivateKey privateKey = keyFactory.generatePrivate(pkcs8EncodedKeySpec);
             // 对数据解密
-            Cipher cipher = Cipher.getInstance(keyFactory.getAlgorithm());
+            Cipher cipher = Cipher.getInstance(cipherAlgorithm);
             cipher.init(Cipher.DECRYPT_MODE, privateKey);
             return cipher.doFinal(data);
         } catch (Exception e) {
@@ -125,13 +131,26 @@ public abstract class RSAUtil {
     }
 
     /**
+     * 私钥解密
+     * 默认使用 RSA/ECB/PKCS1Padding 方式
+     *
+     * @param data   待解密数据
+     * @param priKey 私钥
+     * @return byte[] 解密数据
+     */
+    public static byte[] decryptByPrivateKey(byte[] data, byte[] priKey) {
+        return decryptByPrivateKey(data, priKey, ECB_PKCS_1_PADDING);
+    }
+
+    /**
      * 私钥加密
      *
      * @param data   待加密数据
      * @param pubKey 私钥
+     * @param cipherAlgorithm 算法/工作模式/填充方式
      * @return byte[] 加密后的数据
      */
-    public static byte[] encryptByPrivateKey(byte[] data, byte[] pubKey) {
+    public static byte[] encryptByPrivateKey(byte[] data, byte[] pubKey, final String cipherAlgorithm) {
         // 获取私钥
         PKCS8EncodedKeySpec pkcs8EncodedKeySpec = new PKCS8EncodedKeySpec(pubKey);
         try {
@@ -139,12 +158,24 @@ public abstract class RSAUtil {
             // 生成私钥
             PrivateKey privateKey = keyFactory.generatePrivate(pkcs8EncodedKeySpec);
             // 对数据解密
-            Cipher cipher = Cipher.getInstance(keyFactory.getAlgorithm());
+            Cipher cipher = Cipher.getInstance(cipherAlgorithm);
             cipher.init(Cipher.ENCRYPT_MODE, privateKey);
             return cipher.doFinal(data);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * 私钥加密
+     * 默认使用 RSA/ECB/PKCS1Padding 方式
+     *
+     * @param data   待加密数据
+     * @param pubKey 私钥
+     * @return byte[] 加密后的数据
+     */
+    public static byte[] encryptByPrivateKey(byte[] data, byte[] pubKey) {
+        return encryptByPrivateKey(data, pubKey, ECB_PKCS_1_PADDING);
     }
 
     /**
@@ -154,7 +185,7 @@ public abstract class RSAUtil {
      * @param pubKey 公钥
      * @return byte[] 解密后的数据
      */
-    public static byte[] decryptByPublicKey(byte[] data, byte[] pubKey) {
+    public static byte[] decryptByPublicKey(byte[] data, byte[] pubKey, final String cipherAlgorithm) {
         // 获取公钥
         X509EncodedKeySpec x509EncodedKeySpec = new X509EncodedKeySpec(pubKey);
         try {
@@ -162,7 +193,7 @@ public abstract class RSAUtil {
             // 生成公钥
             PublicKey publicKey = keyFactory.generatePublic(x509EncodedKeySpec);
             // 对数据解密
-            Cipher cipher = Cipher.getInstance(keyFactory.getAlgorithm());
+            Cipher cipher = Cipher.getInstance(cipherAlgorithm);
             cipher.init(Cipher.DECRYPT_MODE, publicKey);
             return cipher.doFinal(data);
 
@@ -172,13 +203,25 @@ public abstract class RSAUtil {
     }
 
     /**
+     * 公钥解密
+     * 默认使用 RSA/ECB/PKCS1Padding 方式
+     *
+     * @param data   待解密数据
+     * @param pubKey 公钥
+     * @return byte[] 解密后的数据
+     */
+    public static byte[] decryptByPublicKey(byte[] data, byte[] pubKey) {
+        return decryptByPublicKey(data, pubKey, ECB_PKCS_1_PADDING);
+    }
+
+    /**
      * 公钥加密
      *
      * @param data   待加密数据
      * @param pubKey 公钥
      * @return byte[] 加密后的数据
      */
-    public static byte[] encryptByPublicKey(byte[] data, byte[] pubKey) {
+    public static byte[] encryptByPublicKey(byte[] data, byte[] pubKey, final String cipherAlgorithm) {
         // 获取公钥
         X509EncodedKeySpec x509EncodedKeySpec = new X509EncodedKeySpec(pubKey);
         try {
@@ -186,13 +229,25 @@ public abstract class RSAUtil {
             // 生成公钥
             PublicKey publicKey = keyFactory.generatePublic(x509EncodedKeySpec);
             // 对数据解密
-            Cipher cipher = Cipher.getInstance(keyFactory.getAlgorithm());
+            Cipher cipher = Cipher.getInstance(cipherAlgorithm);
             cipher.init(Cipher.ENCRYPT_MODE, publicKey);
             return cipher.doFinal(data);
 
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * 公钥加密
+     * 默认使用 RSA/ECB/PKCS1Padding 方式
+     *
+     * @param data   待加密数据
+     * @param pubKey 公钥
+     * @return byte[] 加密后的数据
+     */
+    public static byte[] encryptByPublicKey(byte[] data, byte[] pubKey) {
+        return encryptByPublicKey(data, pubKey, ECB_PKCS_1_PADDING);
     }
 
     /**
@@ -219,6 +274,7 @@ public abstract class RSAUtil {
 
     /**
      * 初始化密钥
+     * 默认密钥长度为 2048 位
      *
      * @return 密钥 Map
      */

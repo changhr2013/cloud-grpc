@@ -20,7 +20,7 @@ import java.util.Base64;
 @SuppressWarnings({"WeakerAccess", "unused"})
 public abstract class HMACUtil {
 
-    // 密钥算法类型
+    /** Hmac 算法类型 */
     public static final String HMAC_MD5 = "HmacMD5";
     public static final String HMAC_SHA256 = "HmacSHA256";
 

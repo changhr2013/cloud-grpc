@@ -60,6 +60,9 @@
         <bouncy.castle.version>1.61</bouncy.castle.version>
         <feign.version>10.2.0</feign.version>
 
+        <objenesis.version>2.1</objenesis.version>
+        <protostuff.version>1.5.9</protostuff.version>
+
         <!-- 第三方工具包版本 -->
         <lombok.version>1.18.6</lombok.version>
         <mapstruct.version>1.3.0.Final</mapstruct.version>
@@ -87,6 +90,22 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
+        </dependency>
+
+        <!-- ProtoStuff -->
+        <dependency>
+            <groupId>io.protostuff</groupId>
+            <artifactId>protostuff-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.protostuff</groupId>
+            <artifactId>protostuff-runtime</artifactId>
+        </dependency>
+
+        <!-- Objenesis -->
+        <dependency>
+            <groupId>org.objenesis</groupId>
+            <artifactId>objenesis</artifactId>
         </dependency>
 
         <!-- Util: Mapstruct -->
@@ -178,6 +197,25 @@
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcpkix-jdk15on</artifactId>
                 <version>${bouncy.castle.version}</version>
+            </dependency>
+
+            <!-- ProtoStuff -->
+            <dependency>
+                <groupId>io.protostuff</groupId>
+                <artifactId>protostuff-core</artifactId>
+                <version>${protostuff.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.protostuff</groupId>
+                <artifactId>protostuff-runtime</artifactId>
+                <version>${protostuff.version}</version>
+            </dependency>
+
+            <!-- Objenesis -->
+            <dependency>
+                <groupId>org.objenesis</groupId>
+                <artifactId>objenesis</artifactId>
+                <version>${objenesis.version}</version>
             </dependency>
 
             <!-- 第三方工具包依赖 -->

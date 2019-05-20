@@ -1,11 +1,15 @@
 package com.changhr.cloud.grpc.cipher.virtual.crypto.symmetric;
 
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
+import java.security.Security;
 
 /**
  * AES 对称加密算法工具类
@@ -15,6 +19,12 @@ import java.security.NoSuchAlgorithmException;
  */
 @SuppressWarnings({"WeakerAccess", "unused"})
 public abstract class AESUtil {
+
+    static {
+        if (Security.getProvider(BouncyCastleProvider.PROVIDER_NAME) == null) {
+            Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+        }
+    }
 
     /**
      * 密钥算法类型
@@ -31,7 +41,9 @@ public abstract class AESUtil {
      * Java 7 支持 PKCS5Padding 填充方式
      * Bouncy Castle 支持 PKCS7Padding 填充方式
      */
-    public static final String CIPHER_ALGORITHM = "AES/ECB/PKCS5Padding";
+    public static final String ECB_NO_PADDING = "AES/ECB/NoPadding";
+    public static final String ECB_PKCS_5_PADDING = "AES/ECB/PKCS5Padding";
+    public static final String ECB_PKCS_7_PADDING = "AES/ECB/PKCS7Padding";
 
     /**
      * 转换密钥
@@ -52,15 +64,41 @@ public abstract class AESUtil {
      * @return byte[] 解密的数据
      */
     public static byte[] decrypt(byte[] data, byte[] key) {
+        return decrypt(data, key, ECB_PKCS_5_PADDING);
+    }
+
+    /**
+     * 解密
+     * @param data  待解密数据
+     * @param key   密钥
+     * @param cipherAlgorithm 算法/工作模式/填充模式
+     * @return byte[] 解密的数据
+     */
+    public static byte[] decrypt(byte[] data, byte[] key, final String cipherAlgorithm) {
         // 还原密钥
         Key k = toKey(key);
         try {
-            /*
-             * 实例化
-             * 使用 PKCS7Padding 填充方式，按如下方式实现
-             * Cipher.getInstance(CIPHER_ALGORITHM, "BC")
-             */
-            Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
+            Cipher cipher = Cipher.getInstance(cipherAlgorithm);
+            // 初始化，设置为解密模式
+            cipher.init(Cipher.DECRYPT_MODE, k);
+            // 执行操作
+            return cipher.doFinal(data);
+        } catch (Exception e) {
+            throw new RuntimeException("AES decrypt error", e);
+        }
+    }
+
+    /**
+     * 解密，使用 BC 库 PKCS7Padding
+     * @param data  待解密数据
+     * @param key   密钥
+     * @return  byte[] 解密的数据
+     */
+    public static byte[] decryptByPKCS7(byte[] data, byte[] key) {
+        // 还原密钥
+        Key k = toKey(key);
+        try {
+            Cipher cipher = Cipher.getInstance(ECB_PKCS_7_PADDING, BouncyCastleProvider.PROVIDER_NAME);
             // 初始化，设置为解密模式
             cipher.init(Cipher.DECRYPT_MODE, k);
             // 执行操作
@@ -78,15 +116,22 @@ public abstract class AESUtil {
      * @return byte[] 加密的数据
      */
     public static byte[] encrypt(byte[] data, byte[] key) {
+        return encrypt(data, key, ECB_PKCS_5_PADDING);
+    }
+
+    /**
+     * 加密
+     *
+     * @param data 待加密数据
+     * @param key  密钥
+     * @param cipherAlgorithm 算法/工作模式/填充模式
+     * @return byte[] 加密的数据
+     */
+    public static byte[] encrypt(byte[] data, byte[] key, final String cipherAlgorithm) {
         // 还原密钥
         Key k = toKey(key);
         try {
-            /*
-             * 实例化
-             * 使用 PKCS7Padding 填充方式，按如下方式实现
-             * Cipher.getInstance(CIPHER_ALGORITHM, "BC")
-             */
-            Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
+            Cipher cipher = Cipher.getInstance(cipherAlgorithm);
             // 初始化，设置为加密模式
             cipher.init(Cipher.ENCRYPT_MODE, k);
             // 执行操作
@@ -97,7 +142,29 @@ public abstract class AESUtil {
     }
 
     /**
-     * 生成密钥 不指定密钥长度，默认为 256 位
+     * 加密，使用 BC 库 PKCS7Padding
+     *
+     * @param data 待加密数据
+     * @param key  密钥
+     * @return byte[] 加密的数据
+     */
+    public static byte[] encryptByPKCS7(byte[] data, byte[] key) {
+        // 还原密钥
+        Key k = toKey(key);
+        try {
+            Cipher cipher = Cipher.getInstance(ECB_PKCS_7_PADDING, BouncyCastleProvider.PROVIDER_NAME);
+            // 初始化，设置为加密模式
+            cipher.init(Cipher.ENCRYPT_MODE, k);
+            // 执行操作
+            return cipher.doFinal(data);
+        } catch (Exception e) {
+            throw new RuntimeException("AES encrypt error", e);
+        }
+    }
+
+    /**
+     * 生成密钥
+     * 不指定密钥长度，默认为 256 位
      *
      * @return byte[] 二进制密钥
      */
@@ -107,6 +174,7 @@ public abstract class AESUtil {
 
     /**
      * 生成密钥
+     * 128、192、256 可选
      *
      * @param keySize 密钥长度
      * @return byte[] 二进制密钥
