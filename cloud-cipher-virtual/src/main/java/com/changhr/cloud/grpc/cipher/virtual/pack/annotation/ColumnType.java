@@ -3,6 +3,7 @@ package com.changhr.cloud.grpc.cipher.virtual.pack.annotation;
 import com.changhr.cloud.grpc.cipher.virtual.pack.AbstractPack;
 
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,8 +23,18 @@ public enum ColumnType {
         }
 
         @Override
+        public void serialize(ByteBuffer bf, Object obj, boolean havePackNo) throws Exception {
+            serialize(bf, obj);
+        }
+
+        @Override
         public Object deserialize(ByteBuffer bf) throws Exception {
             return bf.get();
+        }
+
+        @Override
+        public Object deserialize(ByteBuffer bf, ColumnProperty property) throws Exception {
+            return deserialize(bf);
         }
     },
 
@@ -36,8 +47,18 @@ public enum ColumnType {
         }
 
         @Override
+        public void serialize(ByteBuffer bf, Object obj, boolean havePackNo) throws Exception {
+            serialize(bf, obj);
+        }
+
+        @Override
         public Object deserialize(ByteBuffer bf) throws Exception {
             return bf.getShort();
+        }
+
+        @Override
+        public Object deserialize(ByteBuffer bf, ColumnProperty property) throws Exception {
+            return deserialize(bf);
         }
 
     },
@@ -51,8 +72,18 @@ public enum ColumnType {
         }
 
         @Override
+        public void serialize(ByteBuffer bf, Object obj, boolean havePackNo) throws Exception {
+            serialize(bf, obj);
+        }
+
+        @Override
         public Object deserialize(ByteBuffer bf) throws Exception {
             return bf.getInt();
+        }
+
+        @Override
+        public Object deserialize(ByteBuffer bf, ColumnProperty property) throws Exception {
+            return deserialize(bf);
         }
 
     },
@@ -66,8 +97,18 @@ public enum ColumnType {
         }
 
         @Override
+        public void serialize(ByteBuffer bf, Object obj, boolean havePackNo) throws Exception {
+            serialize(bf, obj);
+        }
+
+        @Override
         public Object deserialize(ByteBuffer bf) throws Exception {
             return bf.getLong();
+        }
+
+        @Override
+        public Object deserialize(ByteBuffer bf, ColumnProperty property) throws Exception {
+            return deserialize(bf);
         }
     },
 
@@ -80,8 +121,18 @@ public enum ColumnType {
         }
 
         @Override
+        public void serialize(ByteBuffer bf, Object obj, boolean havePackNo) throws Exception {
+            serialize(bf, obj);
+        }
+
+        @Override
         public Object deserialize(ByteBuffer bf) throws Exception {
             return bf.getFloat();
+        }
+
+        @Override
+        public Object deserialize(ByteBuffer bf, ColumnProperty property) throws Exception {
+            return deserialize(bf);
         }
 
     },
@@ -89,14 +140,24 @@ public enum ColumnType {
     DOUBLE{
 
         @Override
-        public void serialize(ByteBuffer bf, Object obj) throws Exception {
+        public void serialize(ByteBuffer bf, Object obj) {
             Number n = (Number)obj;
             bf.putDouble(n.doubleValue());
         }
 
         @Override
-        public Object deserialize(ByteBuffer bf) throws Exception {
+        public void serialize(ByteBuffer bf, Object obj, boolean havePackNo) throws Exception {
+            serialize(bf, obj);
+        }
+
+        @Override
+        public Object deserialize(ByteBuffer bf) {
             return bf.getDouble();
+        }
+
+        @Override
+        public Object deserialize(ByteBuffer bf, ColumnProperty property) throws Exception {
+            return deserialize(bf);
         }
 
     },
@@ -104,22 +165,40 @@ public enum ColumnType {
     STRING{
 
         @Override
-        public void serialize(ByteBuffer bf, Object obj) throws Exception {
-            byte[] bs = obj.toString().getBytes("UTF-8");
+        public void serialize(ByteBuffer bf, Object obj) {
+            byte[] bs = obj.toString().getBytes(StandardCharsets.UTF_8);
             bf.putShort((short)bs.length);
             bf.put(bs);
         }
 
         @Override
-        public Object deserialize(ByteBuffer bf) throws Exception {
+        public void serialize(ByteBuffer bf, Object obj, boolean havePackNo) throws Exception {
+            byte[] bs = obj.toString().getBytes(StandardCharsets.UTF_8);
+            bf.putShort((short)bs.length);
+            bf.put(bs);
+        }
+
+        @Override
+        public Object deserialize(ByteBuffer bf) {
 
             short len = bf.getShort();
             if(len > 0){
                 byte[] bs = new byte[len];
                 bf.get(bs);
-                return new String(bs,"UTF-8");
+                return new String(bs, StandardCharsets.UTF_8);
             }
 
+            return "";
+        }
+
+        @Override
+        public Object deserialize(ByteBuffer bf, ColumnProperty property) {
+            int len = property.length();
+            if(len > 0){
+                byte[] bs = new byte[len];
+                bf.get(bs);
+                return new String(bs, StandardCharsets.UTF_8);
+            }
             return "";
         }
 
@@ -132,7 +211,17 @@ public enum ColumnType {
             byte[] bs =new byte[]{};
             if (obj instanceof AbstractPack) {
                 AbstractPack newAbstractPack = (AbstractPack) obj;
-                bs = newAbstractPack.serialize();
+                bs = newAbstractPack.serialize(false);
+            }
+            bf.put(bs);
+        }
+
+        @Override
+        public void serialize(ByteBuffer bf, Object obj, boolean havePackNo) throws Exception {
+            byte[] bs =new byte[]{};
+            if (obj instanceof AbstractPack) {
+                AbstractPack newAbstractPack = (AbstractPack) obj;
+                bs = newAbstractPack.serialize(havePackNo);
             }
             bf.put(bs);
         }
@@ -140,6 +229,11 @@ public enum ColumnType {
         @Override
         public Object deserialize(ByteBuffer bf) throws Exception {
             return AbstractPack.deserialize(bf);
+        }
+
+        @Override
+        public Object deserialize(ByteBuffer bf, ColumnProperty property) throws Exception {
+            return AbstractPack.deserialize(bf, property.clazz());
         }
 
     },
@@ -154,11 +248,26 @@ public enum ColumnType {
         }
 
         @Override
-        public Object deserialize(ByteBuffer bf) throws Exception {
+        public void serialize(ByteBuffer bf, Object obj, boolean havePackNo) throws Exception {
+            serialize(bf, obj);
+        }
+
+        @Override
+        public Object deserialize(ByteBuffer bf) {
             short len = bf.getShort();
             byte[] bs = new byte[len];
             bf.get(bs);
             return bs;
+        }
+
+        @Override
+        public Object deserialize(ByteBuffer bf, ColumnProperty property) throws Exception {
+            if (property.length() != 0) {
+                byte[] bs = new byte[property.length()];
+                bf.get(bs);
+                return bs;
+            }
+            return deserialize(bf);
         }
 
     },
@@ -176,6 +285,11 @@ public enum ColumnType {
         }
 
         @Override
+        public void serialize(ByteBuffer bf, Object obj, boolean havePackNo) throws Exception {
+            serialize(bf, obj);
+        }
+
+        @Override
         public Object deserialize(ByteBuffer bf) throws Exception {
             short len = bf.getShort();
             List<Object> list = new ArrayList<Object>(len);
@@ -185,6 +299,11 @@ public enum ColumnType {
                 }
             }
             return list;
+        }
+
+        @Override
+        public Object deserialize(ByteBuffer bf, ColumnProperty property) throws Exception {
+            return deserialize(bf);
         }
 
     },
@@ -203,6 +322,11 @@ public enum ColumnType {
         }
 
         @Override
+        public void serialize(ByteBuffer bf, Object obj, boolean havePackNo) throws Exception {
+            serialize(bf, obj);
+        }
+
+        @Override
         public Object deserialize(ByteBuffer bf) throws Exception {
             short len = bf.getShort();
             List<Object> list = new ArrayList<Object>(len);
@@ -214,9 +338,22 @@ public enum ColumnType {
             return list;
         }
 
+        @SuppressWarnings("Duplicates")
+        @Override
+        public Object deserialize(ByteBuffer bf, ColumnProperty property) throws Exception {
+            int len = property.length();
+            List<Object> list = new ArrayList<Object>(len);
+            if(len > 0){
+                for(int i = 0; i < len; i++) {
+                    list.add(STRING.deserialize(bf));
+                }
+            }
+            return list;
+        }
+
     },
 
-    LIST_OBJECT{
+    LIST_OBJECT {
 
         @Override
         public void serialize(ByteBuffer bf, Object obj) throws Exception {
@@ -229,17 +366,31 @@ public enum ColumnType {
         }
 
         @Override
-        public Object deserialize(ByteBuffer bf) throws Exception {
+        public void serialize(ByteBuffer bf, Object obj, boolean havePackNo) throws Exception {
+            @SuppressWarnings("unchecked")
+            List<Object> list = (List<Object>)obj;
+            bf.putShort((short) list.size());
+            for (Object item : list) {
+                OBJECT.serialize(bf, item, havePackNo);
+            }
+        }
+
+        @Override
+        public Object deserialize(ByteBuffer bf) {
+            return null;
+        }
+
+        @Override
+        public Object deserialize(ByteBuffer bf, ColumnProperty property) throws Exception {
             short len = bf.getShort();
             List<Object> list = new ArrayList<Object>(len);
             if(len > 0){
                 for(int i=0; i<len; i++){
-                    list.add(OBJECT.deserialize(bf));
+                    list.add(OBJECT.deserialize(bf, property));
                 }
             }
             return list;
         }
-
     };
 
     /**
@@ -251,10 +402,27 @@ public enum ColumnType {
     public abstract void serialize(ByteBuffer bf, Object obj) throws Exception;
 
     /**
-     * 返序列化
+     * 序列化
+     * @param bf
+     * @param obj
+     * @throws Exception
+     */
+    public abstract void serialize(ByteBuffer bf, Object obj, boolean havePackNo) throws Exception;
+
+    /**
+     * 反序列化
      * @param bf
      * @return Object
      * @throws Exception
      */
     public abstract Object deserialize(ByteBuffer bf) throws Exception;
+
+    /**
+     * 反序列化
+     * @param bf
+     * @param property
+     * @return
+     * @throws Exception
+     */
+    public abstract Object deserialize(ByteBuffer bf, ColumnProperty property) throws Exception;
 }

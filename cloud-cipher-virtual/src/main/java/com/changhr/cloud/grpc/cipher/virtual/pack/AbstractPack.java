@@ -46,11 +46,13 @@ public abstract class AbstractPack {
      * @return byte[]
      * @throws Exception
      */
-    public byte[] serialize() throws Exception {
+    public byte[] serialize(boolean havePackNo) throws Exception {
 
         ByteBuffer bf = ByteBuffer.allocate(packMaxSize);
         bf.order(byteOrder);
-        bf.putShort(this.getTypeNo());
+        if (havePackNo) {
+            bf.putShort(this.getTypeNo());
+        }
 
         SortedSet<Field> fields = sortFields(this.getClass().getDeclaredFields());
         for (Field field : fields) {
@@ -58,7 +60,7 @@ public abstract class AbstractPack {
             Object obj = field.get(this);
             try {
                 final ColumnType type = cp.type();
-                type.serialize(bf, obj);
+                type.serialize(bf, obj, havePackNo);
             } catch (Exception e) {
                 throw new Exception("#socket_serialize_error " + field + " " + obj + " " + cp + " " + e, e);
             }
@@ -75,12 +77,38 @@ public abstract class AbstractPack {
      * @param datas 待反序列化的字节数组
      * @return AbstractPack
      */
+    public static AbstractPack deserialize(byte[] datas, Class clazz) throws Exception {
+
+        ByteBuffer byteBuffer = ByteBuffer.wrap(datas);
+        byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
+
+        return deserialize(byteBuffer, clazz);
+    }
+
+    /**
+     * 反序列化，将字节数组转换为包对象
+     *
+     * @param datas 待反序列化的字节数组
+     * @return AbstractPack
+     */
     public static AbstractPack deserialize(byte[] datas) throws Exception {
 
         ByteBuffer byteBuffer = ByteBuffer.wrap(datas);
         byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
 
         return deserialize(byteBuffer);
+    }
+
+
+    /**
+     * 反序列化，将字节缓冲区转换为包对象
+     *
+     * @param byteBuffer
+     * @return AbstractPack
+     * @throws Exception
+     */
+    public static AbstractPack deserialize(ByteBuffer byteBuffer, Class clazz) throws Exception {
+        return getPack(byteBuffer, clazz);
     }
 
     /**
@@ -103,13 +131,17 @@ public abstract class AbstractPack {
 
         AbstractPack abstractPack = (AbstractPack) clazz.newInstance();
 
-        Field[] fields = clazz.getDeclaredFields();
+        SortedSet<Field> fields = sortFields(clazz.getDeclaredFields());
         for (Field field : fields) {
             ColumnProperty cp = field.getAnnotation(ColumnProperty.class);
             field.setAccessible(true);
             try {
                 final ColumnType type = cp.type();
-                field.set(abstractPack, type.deserialize(byteBuffer));
+                if (cp.clazz() != Class.class || cp.length() != 0) {
+                    field.set(abstractPack, type.deserialize(byteBuffer, cp));
+                } else {
+                    field.set(abstractPack, type.deserialize(byteBuffer));
+                }
             } catch (Exception e) {
                 throw new Exception("#socket_serialize_error " + field + " " + cp + " " + e, e);
             }

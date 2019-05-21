@@ -30,16 +30,16 @@ public class SequenceIdUtil {
      * 获取一个序列值
      * @return int
      */
-    public synchronized int nextVal() {
-        if (value < beginValue) {
-            value = beginValue;
-        }
+        public synchronized int nextVal() {
+            if (value < beginValue) {
+                value = beginValue;
+            }
 
-        if(value >= maxValue){
-            value = beginValue;
-        }
+            if(value >= maxValue){
+                value = beginValue;
+            }
 
-        value += STEP;
+            value += STEP;
 
         return value;
     }

@@ -16,5 +16,5 @@ public @interface PackType {
      * 协议版本号
      * @return short
      */
-    short typeNo();
+    short typeNo() default 0;
 }
