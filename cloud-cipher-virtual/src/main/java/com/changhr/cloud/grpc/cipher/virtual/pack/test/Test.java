@@ -1,12 +1,10 @@
 package com.changhr.cloud.grpc.cipher.virtual.pack.test;
 
 import com.changhr.cloud.grpc.cipher.virtual.pack.AbstractPack;
-import com.changhr.cloud.grpc.cipher.virtual.pack.annotation.FieldOrder;
 import com.changhr.cloud.grpc.cipher.virtual.pack.communication.EducationalBackground;
 import com.changhr.cloud.grpc.cipher.virtual.pack.communication.TestRequest;
 import com.changhr.cloud.grpc.cipher.virtual.pack.utils.SequenceIdUtil;
 
-import java.lang.reflect.Field;
 import java.security.SecureRandom;
 import java.util.*;
 
@@ -31,6 +29,7 @@ public class Test {
         request.setAge((short)24);
         request.setHeight((short)176);
         request.setWeight(65.5F);
+
         byte[] temp = new byte[16];
         SecureRandom random = new SecureRandom();
         random.nextBytes(temp);
@@ -69,7 +68,6 @@ public class Test {
         byte[] bs = request.serialize(false);
 
         // 打印生成的字节数组
-        System.out.println(bs.toString());
         for (byte b : bs) {
             System.out.print(b + " ");
         }
@@ -78,28 +76,5 @@ public class Test {
         // 调用返序列化方法，将字节数组转换为对象
         TestRequest request2 = (TestRequest) AbstractPack.deserialize(bs, TestRequest.class);
         System.out.println(request2);
-
-//        // 打印通过字节数组转换的对象
-//        System.out.println(request2);
-//
-//        EducationalBackground middleSchool = new EducationalBackground();
-//        middleSchool.setStartYear((short) 2003);
-//        middleSchool.setEndYear((short) 2009);
-//        middleSchool.setSchool("八一中学");
-//
-//        Field[] fields = EducationalBackground.class.getDeclaredFields();
-//        SortedSet<Field> sortedFields = new TreeSet<>(new FieldComparator());
-//        sortedFields.addAll(Arrays.asList(fields));
-//
-//        for (Field sortedField : sortedFields) {
-//            System.out.println(sortedField.getName());
-//        }
-    }
-    private static class FieldComparator implements Comparator<Field> {
-        @Override
-        public int compare(Field field1, Field field2) {
-            return Integer.compare(field1.getAnnotation(FieldOrder.class).value(),
-                    field2.getAnnotation(FieldOrder.class).value());
-        }
     }
 }

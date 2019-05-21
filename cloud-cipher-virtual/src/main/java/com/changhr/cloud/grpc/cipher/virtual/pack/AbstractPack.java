@@ -20,12 +20,12 @@ public abstract class AbstractPack {
     /**
      * 字节序
      */
-    final ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
+    private static ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
 
     /**
      * 当前包的允许最大长度
      */
-    final int packMaxSize = 1500;
+    private static int packMaxSize = 2048;
 
     /**
      * 获取包类型号typeNo，包类型号不允许重复，一个包类型号对应一个包
@@ -57,6 +57,7 @@ public abstract class AbstractPack {
         SortedSet<Field> fields = sortFields(this.getClass().getDeclaredFields());
         for (Field field : fields) {
             ColumnProperty cp = field.getAnnotation(ColumnProperty.class);
+            field.setAccessible(true);
             Object obj = field.get(this);
             try {
                 final ColumnType type = cp.type();

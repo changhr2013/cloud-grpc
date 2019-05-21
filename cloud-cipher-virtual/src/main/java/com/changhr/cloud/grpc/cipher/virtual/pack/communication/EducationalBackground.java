@@ -21,19 +21,19 @@ public class EducationalBackground extends AbstractPack {
      */
     @FieldOrder(1)
     @ColumnProperty(type = ColumnType.SHORT)
-    public short startYear;
+    private short startYear;
 
     /**
      * 结束年份
      */
     @FieldOrder(2)
     @ColumnProperty(type = ColumnType.SHORT)
-    public short endYear;
+    private short endYear;
 
     /**
      * 学校名称
      */
     @FieldOrder(3)
     @ColumnProperty(type = ColumnType.STRING)
-    public String school;
+    private String school;
 }
