@@ -61,6 +61,7 @@
         <feign.version>10.2.0</feign.version>
 
         <objenesis.version>2.1</objenesis.version>
+        <commons-lang3.version>3.9</commons-lang3.version>
         <protostuff.version>1.5.9</protostuff.version>
 
         <!-- 第三方工具包版本 -->
@@ -218,6 +219,13 @@
                 <version>${objenesis.version}</version>
             </dependency>
 
+            <!--Commons lang3-->
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${commons-lang3.version}</version>
+            </dependency>
+
             <!-- 第三方工具包依赖 -->
             <dependency>
                 <groupId>org.projectlombok</groupId>
@@ -246,8 +254,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.0</version>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.mapstruct</groupId>

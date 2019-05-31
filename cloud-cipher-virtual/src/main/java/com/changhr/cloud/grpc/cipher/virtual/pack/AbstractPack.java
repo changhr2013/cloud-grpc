@@ -101,7 +101,7 @@ public abstract class AbstractPack {
 
 
     /**
-     * 反序列化，将字节缓冲区转换为包对象
+     * 反序列化，将字节缓冲区转换为包对象。/
      *
      * @param byteBuffer
      * @return AbstractPack

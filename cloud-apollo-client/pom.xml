@@ -51,6 +51,11 @@
             <artifactId>jedis</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
+
         <!-- Config: Apollo Client -->
         <dependency>
             <groupId>com.ctrip.framework.apollo</groupId>
