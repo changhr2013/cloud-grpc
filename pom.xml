@@ -62,6 +62,7 @@
 
         <objenesis.version>2.1</objenesis.version>
         <commons-lang3.version>3.9</commons-lang3.version>
+        <guava.version>27.1-jre</guava.version>
         <protostuff.version>1.5.9</protostuff.version>
 
         <!-- 第三方工具包版本 -->
@@ -224,6 +225,13 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
                 <version>${commons-lang3.version}</version>
+            </dependency>
+
+            <!-- Guava -->
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
             </dependency>
 
             <!-- 第三方工具包依赖 -->
