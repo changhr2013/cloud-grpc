@@ -20,7 +20,4 @@ public @interface ColumnProperty {
 
     // 如果指定长度，就不再获取长度标识位
     int length() default 0;
-
-    // 字段长度限制，0 为不限制
-    //int maxLen() default 0;
 }
