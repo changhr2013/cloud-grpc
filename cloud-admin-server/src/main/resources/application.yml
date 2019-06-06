@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: cloud-admin-server
+  main:
+    allow-bean-definition-overriding: true
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 139.199.94.62:8848
+server:
+  port: 6200

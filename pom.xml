@@ -34,6 +34,8 @@
         <module>cloud-apollo-gateway</module>
         <!-- 关于字节数组转换和加解密的模块 -->
         <module>cloud-cipher-virtual</module>
+        <!-- Spring Boot Admin -->
+        <module>cloud-admin-server</module>
     </modules>
 
     <properties>
@@ -45,6 +47,7 @@
         <!-- 官方依赖包版本 -->
         <spring-boot.version>2.1.4.RELEASE</spring-boot.version>
         <spring-cloud.version>Greenwich.SR1</spring-cloud.version>
+        <spring-cloud-alibaba.version>0.9.0.RELEASE</spring-cloud-alibaba.version>
 
         <!-- GRPC 相关 -->
         <grpc.spring-boot.version>2.3.0.RELEASE</grpc.spring-boot.version>
@@ -124,6 +127,14 @@
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
                 <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-alibaba-dependencies</artifactId>
+                <version>${spring-cloud-alibaba.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
