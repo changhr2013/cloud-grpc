@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: cloud-nacos-client
+  main:
+    allow-bean-definition-overriding: true
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 139.199.94.62:8848
+      config:
+        server-addr: 139.199.94.62:8848
+        group: cloud-grpc
+        file-extension: yaml
