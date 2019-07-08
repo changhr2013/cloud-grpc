@@ -1,0 +1,6 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://lovemengya.cn:3306/oauth2?useUnicode=true&characterEncoding=utf-8&useSSL=false
+    username: root
+    password: TencentMysql@2019

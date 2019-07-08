@@ -1,4 +1,6 @@
 spring:
+  profiles:
+    active: default
   application:
     name: cloud-nacos-client
   main:

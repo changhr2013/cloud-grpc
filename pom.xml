@@ -200,6 +200,12 @@
                 <version>${feign.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>5.1.47</version>
+            </dependency>
+
             <!-- Bouncy Castle 加解密库 -->
             <dependency>
                 <groupId>org.bouncycastle</groupId>
