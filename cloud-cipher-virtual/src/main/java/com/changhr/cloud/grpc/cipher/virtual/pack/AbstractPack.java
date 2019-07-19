@@ -20,38 +20,39 @@ public abstract class AbstractPack {
     /**
      * 字节序
      */
-    private static ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
+    private static final ByteOrder BYTE_ORDER = ByteOrder.LITTLE_ENDIAN;
 
     /**
      * 当前包的允许最大长度
      */
-    private static int packMaxSize = 2048;
+    private static final int PACK_MAX_SIZE = 2048;
 
     /**
      * 获取包类型号typeNo，包类型号不允许重复，一个包类型号对应一个包
      *
      * @return short
      */
-    public final short getTypeNo() {
+    private short getTypeNo() {
         @SuppressWarnings("rawtypes")
         Class clazz = this.getClass();
-        @SuppressWarnings("unchecked")
         PackType packType = (PackType) clazz.getAnnotation(PackType.class);
         return packType.typeNo();
     }
 
     /**
-     * 序列化，将包对象转化为字节数组
+     * 序列化对象，将包对象转化为字节数组
      *
-     * @return byte[]
-     * @throws Exception
+     * @param havePackNo 序列化的字节数组是否带数据包类型号
+     * @return byte[] 序列化后的字节数组
+     * @throws Exception 异常
      */
     public byte[] serialize(boolean havePackNo) throws Exception {
 
-        ByteBuffer bf = ByteBuffer.allocate(packMaxSize);
-        bf.order(byteOrder);
+        ByteBuffer buffer = ByteBuffer.allocate(PACK_MAX_SIZE);
+        buffer.order(BYTE_ORDER);
+
         if (havePackNo) {
-            bf.putShort(this.getTypeNo());
+            buffer.putShort(this.getTypeNo());
         }
 
         SortedSet<Field> fields = sortFields(this.getClass().getDeclaredFields());
@@ -61,27 +62,28 @@ public abstract class AbstractPack {
             Object obj = field.get(this);
             try {
                 final ColumnType type = cp.type();
-                type.serialize(bf, obj, havePackNo);
+                type.serialize(buffer, obj, havePackNo);
             } catch (Exception e) {
                 throw new Exception("#socket_serialize_error " + field + " " + obj + " " + cp + " " + e, e);
             }
         }
 
-        byte[] result = new byte[bf.position()];
-        System.arraycopy(bf.array(), 0, result, 0, result.length);
+        byte[] result = new byte[buffer.position()];
+        System.arraycopy(buffer.array(), 0, result, 0, result.length);
         return result;
     }
 
     /**
      * 反序列化，将字节数组转换为包对象
      *
-     * @param datas 待反序列化的字节数组
-     * @return AbstractPack
+     * @param data  待反序列化的字节数组
+     * @param clazz 待反序列化的字节数组代表的类
+     * @return {@link AbstractPack}
      */
-    public static AbstractPack deserialize(byte[] datas, Class clazz) throws Exception {
+    public static AbstractPack deserialize(byte[] data, Class clazz) throws Exception {
 
-        ByteBuffer byteBuffer = ByteBuffer.wrap(datas);
-        byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
+        ByteBuffer byteBuffer = ByteBuffer.wrap(data);
+        byteBuffer.order(BYTE_ORDER);
 
         return deserialize(byteBuffer, clazz);
     }
@@ -89,24 +91,24 @@ public abstract class AbstractPack {
     /**
      * 反序列化，将字节数组转换为包对象
      *
-     * @param datas 待反序列化的字节数组
-     * @return AbstractPack
+     * @param data 待反序列化的字节数组
+     * @return {@link AbstractPack}
      */
-    public static AbstractPack deserialize(byte[] datas) throws Exception {
+    public static AbstractPack deserialize(byte[] data) throws Exception {
 
-        ByteBuffer byteBuffer = ByteBuffer.wrap(datas);
-        byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
+        ByteBuffer byteBuffer = ByteBuffer.wrap(data);
+        byteBuffer.order(BYTE_ORDER);
 
         return deserialize(byteBuffer);
     }
 
-
     /**
-     * 反序列化，将字节缓冲区转换为包对象。/
+     * 反序列化，将字节缓冲区转换为包对象
      *
-     * @param byteBuffer
-     * @return AbstractPack
-     * @throws Exception
+     * @param byteBuffer 字节缓冲 buffer
+     * @param clazz      字节表示的类
+     * @return {@link AbstractPack}
+     * @throws Exception 异常
      */
     public static AbstractPack deserialize(ByteBuffer byteBuffer, Class clazz) throws Exception {
         return getPack(byteBuffer, clazz);
@@ -115,9 +117,9 @@ public abstract class AbstractPack {
     /**
      * 反序列化，将字节缓冲区转换为包对象
      *
-     * @param byteBuffer
-     * @return AbstractPack
-     * @throws Exception
+     * @param byteBuffer 字节缓冲 buffer
+     * @return {@link AbstractPack}
+     * @throws Exception 异常
      */
     public static AbstractPack deserialize(ByteBuffer byteBuffer) throws Exception {
 
@@ -128,6 +130,14 @@ public abstract class AbstractPack {
         return getPack(byteBuffer, clazz);
     }
 
+    /**
+     * 反序列化字节缓冲区的字节数组为对应的对象
+     *
+     * @param byteBuffer 字节缓冲区 buffer
+     * @param clazz      对象 Class
+     * @return {@link AbstractPack}
+     * @throws Exception 异常
+     */
     private static AbstractPack getPack(ByteBuffer byteBuffer, Class<?> clazz) throws Exception {
 
         AbstractPack abstractPack = (AbstractPack) clazz.newInstance();
@@ -150,11 +160,16 @@ public abstract class AbstractPack {
         return abstractPack;
     }
 
+    /**
+     * 按照注解{@link FieldOrder}中的数字对反射后的 Field 排序
+     *
+     * @param fields 反射得到的 Field 数组
+     * @return SortedSet<Field> 排序的 Field 集合
+     */
     private static SortedSet<Field> sortFields(Field[] fields) {
         SortedSet<Field> sortedSet =
                 new TreeSet<>(Comparator.comparingInt(field -> field.getAnnotation(FieldOrder.class).value()));
         sortedSet.addAll(Arrays.asList(fields));
         return sortedSet;
     }
-
 }

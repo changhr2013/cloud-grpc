@@ -331,6 +331,16 @@ public abstract class SM2Util {
     }
 
     /**
+     * 解压缩公钥
+     * @param compressedPublicKey 压缩的公钥
+     * @return byte[] 完整的非压缩公钥
+     */
+    public static byte[] decompressionPublicKey(byte[] compressedPublicKey){
+        ECPoint p = x9ECParameters.getCurve().decodePoint(compressedPublicKey);
+        return p.getEncoded(false);
+    }
+
+    /**
      * BC 库解密时密文中的 c1 要求为非压缩格式
      * 此方法判断密文中的 c1 是否压缩，如果压缩就转换为未压缩的再给 BC 库解密
      *

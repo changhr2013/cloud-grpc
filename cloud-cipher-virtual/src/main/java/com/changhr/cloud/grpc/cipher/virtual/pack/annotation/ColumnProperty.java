@@ -7,6 +7,7 @@ import java.lang.annotation.Target;
 
 /**
  * 字段属性注解
+ * @author changhr
  */
 @Retention(value = RetentionPolicy.RUNTIME)
 @Target(value = {ElementType.FIELD, ElementType.TYPE})

@@ -3,6 +3,7 @@ package com.changhr.cloud.grpc.cipher.virtual.pack.test;
 import com.changhr.cloud.grpc.cipher.virtual.pack.AbstractPack;
 import com.changhr.cloud.grpc.cipher.virtual.pack.communication.EducationalBackground;
 import com.changhr.cloud.grpc.cipher.virtual.pack.communication.client.CabinToken;
+import com.changhr.cloud.grpc.cipher.virtual.pack.communication.data.KeyRec;
 import com.changhr.cloud.grpc.cipher.virtual.pack.communication.data.LicReq;
 import com.changhr.cloud.grpc.cipher.virtual.pack.communication.TestRequest;
 import com.changhr.cloud.grpc.cipher.virtual.pack.utils.SequenceIdUtil;
@@ -87,20 +88,12 @@ public class Test {
 //        System.out.println(Hex.toHexString(deserialize.getFatherLicId()));
 //        System.out.println(Hex.toHexString(deserialize.getKeyId()));
 
-        String cabinTokenBase64 = "AAAomM4u0ilBML8WRwbwX31+rnrp2KVCTOqv5UeNgl8oAwfXO/fOQUdXgmbfMpSMzLoSRoWVepFLm5VF9504YOuB";
-        byte[] decode = Base64.getDecoder().decode(cabinTokenBase64);
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
-        CabinToken deserialize = (CabinToken) AbstractPack.deserialize(decode, CabinToken.class);
-        stopWatch.stop();
-        System.out.println(stopWatch.getTotalTimeMillis());
+//        String keyRec = "ASAAEAAAAAC/kS1dAAAAAGPmVDdAC0JgrUlst/n1CTFLsLkgrOrrs1xEPLoAkkPb88x7L9vPnl3+RcvJMTCzPVeg7fNOCU7cs2P+Ek3bf1fnT7+JSA1c65xZRJ5HEK94mDpYshsOB//TSAauy8a4SggAAAAAiIiIEScAAAAAAAC+kS1dAAAAAP////////9/AQAAAAABAACb44RinqK5QgO14RX5IkSftUsUj/7Q3V+mCPI071ejQ4TsqW3mF8rtYbYSesKGmSh+VYwD0rB/b6JYIFh9t64MZd3lLakG8z8=";
+//
+//        KeyRec deserialize = (KeyRec) AbstractPack.deserialize(Base64.getDecoder().decode(keyRec), KeyRec.class);
+//        System.out.println(deserialize);
 
-        System.out.println(deserialize);
-        System.out.println("licenseKeyId=" + Hex.toHexString(deserialize.getLicKeyId()));
-        System.out.println("licenseId=" + Hex.toHexString(deserialize.getLicenseId()));
-        System.out.println("receiver=" + Hex.toHexString(deserialize.getReceiverDoeUserId()));
-        System.out.println("issuer=" + Hex.toHexString(deserialize.getIssuerDoeUserId()));
-        System.out.println("version=" + deserialize.getVersion());
-        System.out.println("type=" + deserialize.getType());
+        String userPubKey = "ARAAEDDdyYYg4kq/gpxmMVz0ZKAAAAAAF6bjWwAAAAAAAQEAAAQAAIwAAAAwgYkCgYEAoNTXjrV8RYkamzihQELz0Mh2OUHrhEzfepUANHkE2zu41O3X1XCLyLc2ylB7SrpWhtD/STVYm43zBYr0SyO5gidExPNJhF06OU/6P4YRqkjiEiO4Ev2Ja3O1IWdhd9fdvLSnf5sH9CVXAstanXwj0mwthJ57wnBCuyN8HFuUSBMCAwEAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACKcU7piT27izfep8U6Z0M8rJwIEDf7kB2y2oL6Pd2wA==";
+
     }
 }

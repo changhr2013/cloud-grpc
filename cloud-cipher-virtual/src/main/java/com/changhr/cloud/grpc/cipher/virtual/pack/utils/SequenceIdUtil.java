@@ -2,13 +2,14 @@ package com.changhr.cloud.grpc.cipher.virtual.pack.utils;
 
 /**
  * 获取唯一序列
- * @author daidai
+ * @author changhr
  */
 public class SequenceIdUtil {
 
-    private final int beginValue = 0;
-    private final int maxValue = Integer.MAX_VALUE;
+    private static final int MIN_VALUE = 0;
+    private static final int MAX_VALUE = Integer.MAX_VALUE;
     private static final int STEP = 1;
+
     private int value;
 
     private SequenceIdUtil(){}
@@ -31,12 +32,12 @@ public class SequenceIdUtil {
      * @return int
      */
         public synchronized int nextVal() {
-            if (value < beginValue) {
-                value = beginValue;
+            if (value < MIN_VALUE) {
+                value = MIN_VALUE;
             }
 
-            if(value >= maxValue){
-                value = beginValue;
+            if(value >= MAX_VALUE){
+                value = MIN_VALUE;
             }
 
             value += STEP;
