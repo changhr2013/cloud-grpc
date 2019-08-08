@@ -1,13 +1,17 @@
 package com.changhr.cloud.grpc.cipher.virtual.crypto.symmetric;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.util.encoders.Hex;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
+import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.security.Security;
 
 /**
@@ -16,7 +20,7 @@ import java.security.Security;
  * @author changhr
  * @create 2019-05-08 9:29
  */
-@SuppressWarnings({"WeakerAccess", "unused"})
+@SuppressWarnings({"WeakerAccess", "unused", "Duplicates"})
 public abstract class AESUtil {
 
     static {
@@ -43,6 +47,7 @@ public abstract class AESUtil {
     public static final String ECB_NO_PADDING = "AES/ECB/NoPadding";
     public static final String ECB_PKCS_5_PADDING = "AES/ECB/PKCS5Padding";
     public static final String ECB_PKCS_7_PADDING = "AES/ECB/PKCS7Padding";
+    public static final String GCM_NO_PADDING = "AES/GCM/NoPadding";
 
     /**
      * 转换密钥
@@ -68,8 +73,9 @@ public abstract class AESUtil {
 
     /**
      * 解密
-     * @param data  待解密数据
-     * @param key   密钥
+     *
+     * @param data            待解密数据
+     * @param key             密钥
      * @param cipherAlgorithm 算法/工作模式/填充模式
      * @return byte[] 解密的数据
      */
@@ -89,9 +95,10 @@ public abstract class AESUtil {
 
     /**
      * 解密，使用 BC 库 PKCS7Padding
-     * @param data  待解密数据
-     * @param key   密钥
-     * @return  byte[] 解密的数据
+     *
+     * @param data 待解密数据
+     * @param key  密钥
+     * @return byte[] 解密的数据
      */
     public static byte[] decryptByPKCS7(byte[] data, byte[] key) {
         // 还原密钥
@@ -107,20 +114,98 @@ public abstract class AESUtil {
         }
     }
 
-    public static byte[] encryptByGCM(byte[] data, byte[] key, final String cipherAlgorithm) {
+    /**
+     * 生成用来初始化 GCMParameterSpec 的随机数
+     * @return byte[] 12 个随机字节
+     */
+    public static byte[] generateGCMNonce() {
+        SecureRandom random;
+        try {
+            random = SecureRandom.getInstanceStrong();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("no such algorithm exception");
+        }
+        byte[] nonce = new byte[96 / Byte.SIZE];
+        random.nextBytes(nonce);
+        return nonce;
+    }
+
+    /**
+     * 解密 AES-GCM 算法加密的数据
+     *
+     * @param data  待解密数据
+     * @param key   AES 密钥
+     * @param nonce 用来初始化 GCMParameterSpec 的随机数
+     * @param aad   Associated data 关联数据
+     * @return byte[] 解密后的数据
+     */
+    public static byte[] decryptByGCM(byte[] data, byte[] key, byte[] nonce, byte[] aad) {
         // 还原密钥
         Key k = toKey(key);
         try {
-            Cipher cipher = Cipher.getInstance(cipherAlgorithm);
+            final Cipher cipher = Cipher.getInstance(GCM_NO_PADDING);
+
+            GCMParameterSpec gcmParameterSpec = new GCMParameterSpec(128, nonce);
+
             // 初始化，设置为加密模式
-            cipher.init(Cipher.ENCRYPT_MODE, k);
-            byte[] iv = cipher.getIV();
-            assert iv.length == 12;
+            cipher.init(Cipher.DECRYPT_MODE, k, gcmParameterSpec);
+
+            if (aad != null) {
+                cipher.updateAAD(aad);
+            }
+
+            byte[] decrypted = new byte[cipher.getOutputSize(data.length)];
+
+            int updateSize = cipher.update(data, 0, data.length, decrypted, 0);
             // 执行操作
-            return cipher.doFinal(data);
+            cipher.doFinal(decrypted, updateSize);
+            return decrypted;
         } catch (Exception e) {
-            throw new RuntimeException("AES encrypt error", e);
+            throw new RuntimeException("AES-GCM decrypt error", e);
         }
+    }
+
+    public static byte[] decryptByGCM(byte[] data, byte[] key, byte[] nonce) {
+        return decryptByGCM(data, key, nonce, null);
+    }
+
+    /**
+     * 加密，使用 AES-GCM 算法
+     *
+     * @param data  待加密数据
+     * @param key   AES 密钥
+     * @param nonce 用来初始化 GCMParameterSpec 的随机数
+     * @param aad   Associated data 关联数据
+     * @return byte[] 加密后的数据
+     */
+    public static byte[] encryptByGCM(byte[] data, byte[] key, byte[] nonce, byte[] aad) {
+        // 还原密钥
+        Key k = toKey(key);
+        try {
+            final Cipher cipher = Cipher.getInstance(GCM_NO_PADDING);
+
+            GCMParameterSpec gcmParameterSpec = new GCMParameterSpec(128, nonce);
+
+            // 初始化，设置为加密模式
+            cipher.init(Cipher.ENCRYPT_MODE, k, gcmParameterSpec);
+
+            if (aad != null) {
+                cipher.updateAAD(aad);
+            }
+
+            byte[] encrypted = new byte[cipher.getOutputSize(data.length)];
+
+            int updateSize = cipher.update(data, 0, data.length, encrypted, 0);
+            // 执行操作
+            cipher.doFinal(encrypted, updateSize);
+            return encrypted;
+        } catch (Exception e) {
+            throw new RuntimeException("AES-GCM encrypt error", e);
+        }
+    }
+
+    public static byte[] encryptByGCM(byte[] data, byte[] key, byte[] nonce) {
+        return encryptByGCM(data, key, nonce, null);
     }
 
     /**
@@ -137,8 +222,8 @@ public abstract class AESUtil {
     /**
      * 加密
      *
-     * @param data 待加密数据
-     * @param key  密钥
+     * @param data            待加密数据
+     * @param key             密钥
      * @param cipherAlgorithm 算法/工作模式/填充模式
      * @return byte[] 加密的数据
      */
@@ -211,5 +296,19 @@ public abstract class AESUtil {
         SecretKey secretKey = keyGenerator.generateKey();
         // 获得密钥的二进制编码形式
         return secretKey.getEncoded();
+    }
+
+    public static void main(String[] args) {
+        byte[] key = AESUtil.initKey();
+        byte[] data = "Nice to meet you!".getBytes(StandardCharsets.UTF_8);
+        byte[] nonce = AESUtil.generateGCMNonce();
+        byte[] aad = "aadKey".getBytes(StandardCharsets.UTF_8);
+
+        byte[] encrypt = AESUtil.encryptByGCM(data, key, nonce);
+
+        System.out.println(Hex.toHexString(encrypt));
+
+        byte[] bytes = AESUtil.decryptByGCM(encrypt, key, nonce);
+        System.out.println(new String(bytes, StandardCharsets.UTF_8));
     }
 }
