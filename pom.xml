@@ -36,6 +36,8 @@
         <module>cloud-cipher-virtual</module>
         <!-- Spring Boot Admin -->
         <module>cloud-admin-server</module>
+        <module>cloud-security-oauth2</module>
+        <module>cloud-jna</module>
     </modules>
 
     <properties>
@@ -67,6 +69,8 @@
         <commons-lang3.version>3.9</commons-lang3.version>
         <guava.version>27.1-jre</guava.version>
         <protostuff.version>1.5.9</protostuff.version>
+
+        <fastjson.version>1.2.62</fastjson.version>
 
         <!-- 第三方工具包版本 -->
         <lombok.version>1.18.6</lombok.version>
@@ -137,6 +141,12 @@
                 <version>${spring-cloud-alibaba.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>fastjson</artifactId>
+                <version>${fastjson.version}</version>
             </dependency>
 
             <!-- 本地 gRPC IDL 生成的依赖包 -->
